@@ -31,16 +31,18 @@ def get_logger(name:str=None):
     return logger
 
 # %%
+# Define ENV variables
+# They will soon be defined directly in the Dockerfile
 try:
     PROJECT_ROOT = osp.join(osp.dirname(__file__))
 except:
     PROJECT_ROOT = os.getcwd()
 
-JSON_FILE = osp.join(PROJECT_ROOT, 'stations_infos.json')
-RAW_DATA_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data','raw'))
-CLEAN_DATA_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data','processed'))
+JSON_FILE = osp.abspath(osp.join(PROJECT_ROOT,'..','utils','stations_infos.json'))
+RAW_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data','raw'))
+PREPROCESSED_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data','preprocessed'))
 
-logger = config_logger.get_logger(__name__)
+logger = get_logger(__name__)
 logger.info(PROJECT_ROOT)
 
 # %%
@@ -184,8 +186,8 @@ def run(city, maxlag=3):
     for yearmonth in month_list:
         logger.info(f'Process {yearmonth}')
         url = process.get_url(city, yearmonth)
-        raw_file = process.get_report(url, RAW_DATA_FOLDER)
-        list_clean_report.append(process.cleaning_report(raw_file, CLEAN_DATA_FOLDER))
+        raw_file = process.get_report(url, RAW_FOLDER)
+        list_clean_report.append(process.cleaning_report(raw_file, PREPROCESSED_FOLDER))
     
     if len(list_clean_report) > 1:
         logger.info('Merge all reports')
@@ -193,6 +195,7 @@ def run(city, maxlag=3):
         merge_df = pd.concat(list_df)
 
         merge_df['Date'] = pd.to_datetime(merge_df['Date'], errors='coerce')
+        merge_df['Location'] = [city] * len(merge_df)
         merge_df = merge_df.sort_values(by='Date')
         merge_df.to_csv(list_clean_report[0], sep=',', header=True, index=False, mode='w')
     
