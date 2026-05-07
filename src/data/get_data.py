@@ -8,19 +8,33 @@ import logging, sys
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-def get_logger(name:str=None):
-    logger = logging.getLogger(name)
+def get_skiprows(pathfile):
+    blank_line_index = None
+
+    with open(pathfile, "r", encoding="latin-1") as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if not line.strip():
+            blank_line_index = i
+            break
+
+    if blank_line_index is None:
+        logger.error('No blank lines found in the file')
+        raise ValueError
+
+    return blank_line_index + 1
+
+def get_logger():
+    logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    # logging.basicConfig(
-    #     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-    # Clean previous "handlers"
 
     if not logger.handlers:
         logger.setLevel(logging.INFO)
 
         console_handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
-            "%(asctime)s [%(levelname)s] %(name)s | %(message)s",
+            "%(asctime)s [%(levelname)s] %(message)s",
             datefmt='%Y-%m-%d %H:%M:%S'
         )
         console_handler.setFormatter(formatter)
@@ -38,12 +52,15 @@ try:
 except:
     PROJECT_ROOT = os.getcwd()
 
-JSON_FILE = osp.abspath(osp.join(PROJECT_ROOT,'..','utils','stations_infos.json'))
 RAW_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data','raw'))
 PREPROCESSED_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data','preprocessed'))
+JSON_FILE = osp.abspath(osp.join(PROJECT_ROOT,'..','utils','stations_infos.json'))
 
-logger = get_logger(__name__)
-logger.info(PROJECT_ROOT)
+with open(JSON_FILE) as src:
+    STATIONS_DATA = json.load(src)
+
+logger = get_logger()
+logger.debug(PROJECT_ROOT)
 
 # %%
 _description = f""" 
@@ -53,30 +70,18 @@ Télécharge les données météo Australien depuis le site bom.gov.au
 parser = argparse.ArgumentParser(description='\n'.join([_description]))
 parser.add_argument('--city', type=str, required=True, help="City name to get weather report")
 parser.add_argument('--maxlag', type=str, required=False, default=3, help="Maximum lag computed in features model")
-
-# %%
-def get_stations_infos():
-    if not osp.exists(JSON_FILE):
-        logger.error(f'{stations_file} not found !')
-        raise FileNotFoundError
-    
-    logger.info(f'Load {osp.basename(stations_file)}')
-    with open(stations_file) as src:
-        stations_data = json.load(src)
-    return stations_data
+parser.add_argument('--mode', type=str, required=False, default='INFO', choices=['WARNING','INFO','DEBUG'], help="Logger level")
 
 # %%
 class DailyWeatherDATA:
     def __init__(self):
         self.url_daily_weather = 'https://www.bom.gov.au/climate/dwo/{year_month}/text/{bom_id}.{year_month}.csv'
 
-        self.stations_infos = get_stations_infos()
-
     def get_available_cities(self):
-        return list(self.stations_infos.keys())
+        return list(STATIONS_DATA.keys())
     
     def get_station_info(self, city):
-        station_info = self.stations_infos.get(city,None)
+        station_info = STATIONS_DATA.get(city,None)
 
         if station_info is None:
             logger.error(f'Unknown city: {city}')
@@ -91,6 +96,10 @@ class DailyWeatherDATA:
             
     def get_url(self,city, time='last'):
         station_info = self.get_station_info(city)
+
+        if station_info['bom_id'] is None:
+            logger.error(f'Invalid Bom Id for {city}')
+            raise ValueError
         
         if time=='last':
             now = self.get_station_date(city)
@@ -121,7 +130,7 @@ class DailyWeatherDATA:
 
         return out_path
 
-    def cleaning_report(self,in_file, out_dir):
+    def cleaning_report(self,in_file, out_dir, city):
         raw_cols = ['Date', 'Minimum temperature (°C)', 'Maximum temperature (°C)',
                     'Rainfall (mm)', 'Evaporation (mm)', 'Sunshine (hours)',
                     'Direction of maximum wind gust ', 'Speed of maximum wind gust (km/h)',
@@ -135,20 +144,22 @@ class DailyWeatherDATA:
         dict_cols = {
             'Date':'datetime', 'MinTemp': 'float32', 'MaxTemp': 'float32', 'Rainfall': 'float32', 'Evaporation': 'float32',
             'Sunshine': 'float32', 'WindGustDir': 'string', 'WindGustSpeed': 'float32', 'TimeMaxWindGust': 'string',
-            'Temp9am': 'float32', 'Humidity9am': 'int16', 'Cloud9am': 'float32', 'WindDir9am': 'string',
-            'WindSpeed9am': 'float32', 'Pressure9am': 'float32', 'Temp3pm': 'float32', 'Humidity3pm': 'int16',
+            'Temp9am': 'float32', 'Humidity9am': 'Int16', 'Cloud9am': 'float32', 'WindDir9am': 'string',
+            'WindSpeed9am': 'float32', 'Pressure9am': 'float32', 'Temp3pm': 'float32', 'Humidity3pm': 'Int16',
             'Cloud3pm': 'float32', 'WindDir3pm': 'string', 'WindSpeed3pm': 'float32', 'Pressure3pm': 'float32'
             }
         dict_raintoday = {0: 'No', 1: 'Yes'}
         
         logger.info('Cleaning weather report')
-        df = pd.read_csv(in_file, delimiter=',', skiprows=7, encoding='latin-1')
+        skiprows_val = get_skiprows(in_file)
+        df = pd.read_csv(in_file, delimiter=',', skiprows=skiprows_val, encoding='latin-1')
         df = df.drop(columns=df.columns[0])
         
         if all(df.columns == raw_cols):
             df.columns = dict_cols.keys()
             
         for col,dtype in dict_cols.items():
+            logger.debug(f'{col} {dtype}')
             if dtype in ('int16', 'float32'):
                 df[col] = pd.to_numeric(df[col], errors='coerce').astype(dtype)
                 
@@ -164,51 +175,63 @@ class DailyWeatherDATA:
         )
         df = df.drop(columns='TimeMaxWindGust')
         df['RainToday'] = df['Rainfall'].apply(lambda x: dict_raintoday.get(x>1, None))
+        df['RainTomorrow'] = df['RainToday'].shift(-1)
+        df['Location'] = [city] * len(df)
 
         filename = osp.basename(in_file)
-        out_file = osp.join(out_dir, f'clean_{filename}')     
-        df.to_csv(out_file, sep=',', header=True, index=False)
+        out_file = osp.join(out_dir, f'clean_{filename}')
+
+        if not osp.exists(out_file):
+            df.to_csv(out_file, sep=',', header=True, index=False)
         return out_file
 
 # %%
-def run(city, maxlag=3):    
+def run(city, maxlag=3, mode='INFO'):
+    logger.setLevel(getattr(logging,mode))
+
     process = DailyWeatherDATA()
 
-    station_date = process.get_station_date(city)
-    station_lag_date = station_date - timedelta(days=maxlag)
-
-    if station_date.strftime("%m") != station_lag_date.strftime("%m"):
-        month_list = [station_date.strftime("%Y%m"), station_lag_date.strftime("%Y%m")]
+    if city == 'ALL':
+        logger.info('Download for ALL cities')
+        for city_name in STATIONS_DATA.keys():
+            try:
+                run(city_name, maxlag)
+            except Exception as e:
+                print(e)
+                logger.warning(f'Weather report for: {city_name} not computed')
     else:
-        month_list = [station_date.strftime("%Y%m")]
-    
-    list_clean_report = []
-    for yearmonth in month_list:
-        logger.info(f'Process {yearmonth}')
-        url = process.get_url(city, yearmonth)
-        raw_file = process.get_report(url, RAW_FOLDER)
-        list_clean_report.append(process.cleaning_report(raw_file, PREPROCESSED_FOLDER))
-    
-    if len(list_clean_report) > 1:
-        logger.info('Merge all reports')
-        list_df = [pd.read_csv(i) for i in list_clean_report]
-        merge_df = pd.concat(list_df)
+        station_date = process.get_station_date(city)
+        station_lag_date = station_date - timedelta(days=maxlag)
 
-        merge_df['Date'] = pd.to_datetime(merge_df['Date'], errors='coerce')
-        merge_df['Location'] = [city] * len(merge_df)
-        merge_df = merge_df.sort_values(by='Date')
-        merge_df.to_csv(list_clean_report[0], sep=',', header=True, index=False, mode='w')
-    
-    logger.info('Finished !')
+        if station_date.strftime("%m") != station_lag_date.strftime("%m"):
+            month_list = [station_date.strftime("%Y%m"), station_lag_date.strftime("%Y%m")]
+        else:
+            month_list = [station_date.strftime("%Y%m")]
+        
+        list_clean_report = []
+        for yearmonth in month_list:
+            logger.info(f'Process {city}:{yearmonth}')
+            url = process.get_url(city, yearmonth)
+            raw_file = process.get_report(url, RAW_FOLDER)
+            preprocessed_file = process.cleaning_report(raw_file, PREPROCESSED_FOLDER, city)
+            list_clean_report.append(preprocessed_file)
+        
+        if len(list_clean_report) > 1:
+            logger.info('Merge all reports')
+            list_df = [pd.read_csv(i) for i in list_clean_report]
+            merge_df = pd.concat(list_df)
+
+            merge_df['Date'] = pd.to_datetime(merge_df['Date'], errors='coerce')
+            merge_df = merge_df.sort_values(by='Date')
+            merge_df.to_csv(list_clean_report[0], sep=',', header=True, index=False, mode='w')
 
 # %%
 if __name__ == "__main__":
     # Parse command line arguments
     kwargs = parser.parse_args()
-    print("\n")
     print("get Daily Weather Report command line arguments: \n")
     print(json.dumps(vars(kwargs), indent=1)) # Pretty print dictionary
-    print("\n")
-
+    print()
     # Run
     run(**vars(kwargs))
+    logger.info('Completed')

@@ -1,22 +1,19 @@
 import os
 import os.path as osp
-import json, glob, logging, sys
+import json, glob, logging, sys, argparse
 import pandas as pd
 import numpy as np
 
-def get_logger(name:str=None):
-    logger = logging.getLogger(name)
+def get_logger():
+    logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    # logging.basicConfig(
-    #     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-    # Clean previous "handlers"
 
     if not logger.handlers:
         logger.setLevel(logging.INFO)
 
         console_handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
-            "%(asctime)s [%(levelname)s] %(name)s | %(message)s",
+            "%(asctime)s [%(levelname)s] %(message)s",
             datefmt='%Y-%m-%d %H:%M:%S'
         )
         console_handler.setFormatter(formatter)
@@ -32,17 +29,24 @@ try:
 except:
     PROJECT_ROOT = os.getcwd()
 
-STATIONS_FILE = osp.abspath(osp.join(PROJECT_ROOT,'..','utils','stations_infos.json'))
-
-with open(STATIONS_FILE) as src:
-        STATIONS_INFOS = json.load(src)
+JSON_FILE = osp.abspath(osp.join(PROJECT_ROOT,'..','utils','stations_infos.json'))
+with open(JSON_FILE) as src:
+    STATIONS_DATA = json.load(src)
 
 PREPROCESSED_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data','preprocessed'))
 TRAINING_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data','training_ready'))
 TARGET_COL_NAME = "RainTomorrow"
 
-logger = get_logger(__name__)
-logger.info(PROJECT_ROOT)
+logger = get_logger()
+logger.debug(PROJECT_ROOT)
+
+_description = f""" 
+Génére les attributs pour le modèle + Compile les données et Créé les fichier X_train, X_test, y_train et y_test
+
+"""
+parser = argparse.ArgumentParser(description='\n'.join([_description]))
+parser.add_argument('--split_train_test', type=float, required=False, default=0.8, help="Percent for splitting Train/Test")
+parser.add_argument('--mode', type=str, required=False, default='INFO', choices=['WARNING','INFO','DEBUG'], help="Logger level")
 
 class CreateFeatures:
     def __init__(self, df: pd.DataFrame):
@@ -85,11 +89,11 @@ class CreateFeatures:
             self.df['latitude'] = latlong[0]
             self.df['longitude'] = latlong[1]
         else:
-            self.df['latitude'] = self.df[location_col].apply(lambda x: STATIONS_INFOS.get(x, {'latlong':[0,0]})['latlong'][0])
-            self.df['longitude'] = self.df[location_col].apply(lambda x: STATIONS_INFOS.get(x, {'latlong':[0,0]})['latlong'][1])
+            self.df['latitude'] = self.df[location_col].apply(lambda x: STATIONS_DATA.get(x, {'latlong':[0,0]})['latlong'][0])
+            self.df['longitude'] = self.df[location_col].apply(lambda x: STATIONS_DATA.get(x, {'latlong':[0,0]})['latlong'][1])
             self.df.loc[(self.df["latitude"] == 0) & (self.df["longitude"] == 0), ['latitude', 'longitude']] = np.nan
         
-    def create_sin_cos_features(self, cols: List[str]):
+    def create_sin_cos_features(self, cols: list[str]):
         for col in cols:
             self.df[f'{col}_sin'] = self.df[col].apply(
                 lambda x: np.sin(np.deg2rad(self.direction_to_angle.get(x,0)))
@@ -98,24 +102,27 @@ class CreateFeatures:
                 lambda x: np.cos(np.deg2rad(self.direction_to_angle.get(x,0)))
             )
 
-    def create_lag_features(self, cols: List[str], lags: List[int]):
+    def create_lag_features(self, cols: list[str], lags: list[int]):
         for col in cols:
             for lag in lags:
                 self.df[f"{col}_lag_{lag}"] = self.df[col].shift(lag)
 
-    def create_rolling_features(self, cols: List[str], windows: List[int]):
+    def create_rolling_features(self, cols: list[str], windows: list[int]):
         for col in cols:
             for window in windows:
                 self.df[f"{col}_roll_mean_{window}"] = np.nanmean(self.df[col].rolling(window))
                 self.df[f"{col}_roll_std_{window}"] = np.nanstd(self.df[col].rolling(window))
 
 
-def run(split_train_test=0.8):
+def run(split_train_test=0.8, mode='INFO'):
+    logger.setLevel(getattr(logging,mode))
+
     origin_dataset = osp.join(PREPROCESSED_FOLDER, 'weatherAUS.csv')
-    list_files = glob.glob(PREPROCESSED_FOLDER, 'clean_*.csv')
+    list_files = glob.glob(osp.join(PREPROCESSED_FOLDER, 'clean_*.csv'))
 
     # Manage weatherAUS
     origin_df = pd.read_csv(origin_dataset)
+    origin_df['Date'] = pd.to_datetime(origin_df['Date'],errors="coerce")
     list_city  = np.unique(origin_df['Location'])
 
     # # dataset validation - Not yet implemented
@@ -148,6 +155,7 @@ def run(split_train_test=0.8):
     # Manage other datafiles
     for csv_file in list_files:
         df = pd.read_csv(csv_file)
+        df['Date'] = pd.to_datetime(df['Date'],errors="coerce")
         city_name = df['Location'].values[0]
 
         features = CreateFeatures(df)
@@ -181,3 +189,11 @@ def run(split_train_test=0.8):
     X_train.to_csv(osp.join(TRAINING_FOLDER, 'X_train.csv'))
     X_test.to_csv(osp.join(TRAINING_FOLDER, 'X_test.csv'))
 
+if __name__ == "__main__":
+    # Parse command line arguments
+    kwargs = parser.parse_args()
+    print("get Daily Weather Report command line arguments: \n")
+    print(json.dumps(vars(kwargs), indent=1)) # Pretty print dictionary
+    print()
+    # Run
+    run(**vars(kwargs))
