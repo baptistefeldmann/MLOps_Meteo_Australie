@@ -6,3 +6,4 @@ data/processed/*
 data/inference/*
 data/features/*
 data/datasets/*
+data/models/*

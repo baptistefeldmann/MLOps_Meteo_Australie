@@ -120,7 +120,7 @@ def collect_training_data():
         out_folder = osp.join(processed_folder, 'not_completed')
         try:
             raw_file = collect_utils.download_raw_report(city, yearmonth, raw_folder)
-            processed_file = collect_utils.cleaning_report(city, raw_file, out_folder)
+            processed_file = collect_utils.cleaning_report(city, raw_file, out_folder, force_saving=True)
             list_clean_report.append(processed_file)
         except Exception as e:
             logger.warning(e)
@@ -221,7 +221,7 @@ def compute_training_features(processed_reports:dict, replace:bool=False):
 
 ##############
 _description = f""" 
-Télécharge les données météo Australien depuis le site bom.gov.au
+Collecte les données météo Australien depuis le site bom.gov.au
 
 """
 parser = argparse.ArgumentParser(description='\n'.join([_description]))

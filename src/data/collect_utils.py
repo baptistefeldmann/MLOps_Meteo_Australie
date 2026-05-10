@@ -86,7 +86,7 @@ def download_raw_report(city:str, yearmonth:str, out_folder:str):
     
     return out_path
 
-def cleaning_report(city, csv_file:str, out_folder:str):
+def cleaning_report(city, csv_file:str, out_folder:str, force_saving:bool=False):
     if city not in STATIONS_DATA.keys():
         logger.error('Unknown city name')
         raise ValueError(f'city name: {city} not in Stations database')
@@ -141,7 +141,7 @@ def cleaning_report(city, csv_file:str, out_folder:str):
     filename = osp.basename(csv_file)
     out_file = osp.join(out_folder, f'clean_{filename}')
 
-    if not osp.exists(out_file):
+    if not osp.exists(out_file) or force_saving:
         df.to_csv(out_file, sep=',', header=True, index=False)
     return out_file
 
