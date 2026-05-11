@@ -179,27 +179,12 @@ def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target
     logger.info('Completed !')
     return model, metrics
 
-##############
-_description = f""" 
-Entrainement du modèle à partir des données météos par station
-"""
-
-parser = argparse.ArgumentParser(description='\n'.join([_description]))
-parser.add_argument('--mode', type=str, required=False, default='ALL', choices=['datasets','training','ALL'], help="Training mode")
-parser.add_argument('--train_ratio', type=float, required=False, default=0.75, help="Split train ratio")
-parser.add_argument('--test_ratio', type=float, required=False, default=0.2, help="Split test ratio")
-parser.add_argument('--version', type=int, required=False, default=1, help="Version model")
-parser.add_argument('--target', type=str, required=False, default='RainTomorrow', help="Target column name")
-parser.add_argument('--verbose', type=str, required=False, default='INFO', choices=['WARNING','INFO','DEBUG'], help="Logger level")
-
-if __name__ == '__main__':
-    kwargs = parser.parse_args()
-    print(json.dumps(vars(kwargs), indent=1)) # Pretty print dictionary
-    print()
-
+def main(kwargs):
     train_path = osp.join(DATA_FOLDER, 'datasets', 'data_train.parquet')
     test_path = osp.join(DATA_FOLDER, 'datasets', 'data_test.parquet')
     valid_path = osp.join(DATA_FOLDER, 'datasets', 'data_valid.parquet')
+    model_folder = osp.join(DATA_FOLDER, 'models', kwargs.model_name)
+    os.makedirs(model_folder, exist_ok=True)
 
     if kwargs.mode in ['datasets','ALL']:
         create_datasets(train_path, test_path, valid_path,
@@ -210,13 +195,38 @@ if __name__ == '__main__':
         model,metrics = train_xgboost_pipeline(train_path, test_path, valid_path, kwargs.target)
 
         logger.info('Save Model + metrics')
-        model_path = osp.join(DATA_FOLDER, 'models', f'xgboost_model_v{kwargs.version}.joblib')
-        metrics_path = osp.join(DATA_FOLDER, 'models', f'xgboost_metrics_v{kwargs.version}.json')
+        model_path = osp.join(model_folder, 'xgboost_model.joblib')
+        metrics_path = osp.join(model_folder, 'xgboost_metrics.json')
+        features_path = osp.join(model_folder, 'xgboost_features_names.npy')
 
         joblib.dump(model, model_path)
 
         with open(metrics_path, "w") as dst:
             json.dump(metrics, dst, indent=2)
+        
+        np.save(features_path, model.feature_names_in_)
+
+##############
+_description = f""" 
+Entrainement du modèle à partir des données météos par station
+"""
+
+parser = argparse.ArgumentParser(description='\n'.join([_description]))
+parser.add_argument('--mode', type=str, required=False, default='ALL', choices=['datasets','training','ALL'], help="Training mode")
+parser.add_argument('--train_ratio', type=float, required=False, default=0.75, help="Split train ratio")
+parser.add_argument('--test_ratio', type=float, required=False, default=0.2, help="Split test ratio")
+parser.add_argument('--model_name', type=str, required=False, default='v1', help="Version model")
+parser.add_argument('--target', type=str, required=False, default='RainTomorrow', help="Target column name")
+parser.add_argument('--verbose', type=str, required=False, default='INFO', choices=['WARNING','INFO','DEBUG'], help="Logger level")
+
+if __name__ == '__main__':
+    kwargs = parser.parse_args()
+    print(json.dumps(vars(kwargs), indent=1)) # Pretty print dictionary
+    print()
+
+    logger.setLevel(getattr(logging,kwargs.verbose))
+
+    main(kwargs)
     
     logger.info('Finished !')
 

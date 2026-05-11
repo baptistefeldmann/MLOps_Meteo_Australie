@@ -101,6 +101,9 @@ def collect_inference_data(city:str):
 def collect_training_data():
     raw_folder = osp.join(DATA_FOLDER, 'raw')
     processed_folder = osp.join(DATA_FOLDER, 'processed')
+
+    #Purge not_completed folder
+    [os.remove(i) for i in glob.glob(osp.join(processed_folder, 'not_completed', 'clean_*.csv'))]
     
     center_city_date = datetime.now(ZoneInfo(STATIONS_DATA['AliceSprings']['timezone']))
     center_city_date_1month_before = center_city_date - relativedelta(months=1)
@@ -120,7 +123,7 @@ def collect_training_data():
         out_folder = osp.join(processed_folder, 'not_completed')
         try:
             raw_file = collect_utils.download_raw_report(city, yearmonth, raw_folder)
-            processed_file = collect_utils.cleaning_report(city, raw_file, out_folder, force_saving=True)
+            processed_file = collect_utils.cleaning_report(city, raw_file, out_folder)
             list_clean_report.append(processed_file)
         except Exception as e:
             logger.warning(e)
