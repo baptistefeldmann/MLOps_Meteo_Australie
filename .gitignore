@@ -2,8 +2,4 @@
 .venv
 __pycache__/
 data/raw/*
-data/processed/*
 data/inference/*
-data/features/*
-data/datasets/*
-data/models/*

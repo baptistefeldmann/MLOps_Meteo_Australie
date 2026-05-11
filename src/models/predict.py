@@ -3,18 +3,6 @@ import os.path as osp
 import json, logging, sys, argparse, glob
 import pandas as pd
 import numpy as np
-# from tqdm import tqdm
-# from sklearn.metrics import (
-#     accuracy_score,
-#     roc_auc_score,
-#     recall_score,
-#     f1_score,
-#     log_loss,
-#     brier_score_loss,
-#     precision_recall_curve,
-#     auc
-# )
-# import xgboost as xgb
 import joblib
 
 def get_logger():
@@ -85,7 +73,7 @@ Prédiction du modèle à partir des données météos
 """
 
 parser = argparse.ArgumentParser(description='\n'.join([_description]))
-parser.add_argument('--data_name', type=str, required=True, help="JSON file name")
+parser.add_argument('--city', type=str, required=True, help="JSON file name")
 parser.add_argument('--model', type=str, required=False, default='v1', help="Model folder name")
 parser.add_argument('--verbose', type=str, required=False, default='INFO', choices=['WARNING','INFO','DEBUG'], help="Logger level")
 
@@ -96,7 +84,8 @@ if __name__ == '__main__':
 
     logger.setLevel(getattr(logging,kwargs.verbose))
 
-    data_file = osp.join(DATA_FOLDER, 'inference', kwargs.data_name)
+    list_city_files = glob.glob(osp.join(DATA_FOLDER, 'inference', f'{kwargs.city}_*.json'))
+    data_file = max(list_city_files, key=osp.getctime)
     model_file = glob.glob(osp.join(DATA_FOLDER, 'models', kwargs.model, '*.joblib'))[0]
     metrics_file = glob.glob(osp.join(DATA_FOLDER, 'models', kwargs.model, '*_metrics.json'))[0]
     features_file = glob.glob(osp.join(DATA_FOLDER, 'models', kwargs.model, '*_features_names.npy'))[0]

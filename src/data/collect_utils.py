@@ -57,7 +57,7 @@ with open(JSON_FILE) as src:
 logger = get_logger()
 logger.debug(PROJECT_ROOT)
 
-def download_raw_report(city:str, yearmonth:str, out_folder:str):
+def download_raw_report(city:str, yearmonth:str, out_folder:str, force_save:bool=False):
     if city not in STATIONS_DATA.keys():
         logger.error('Unknown city name')
         raise ValueError(f'city name: {city} not in Stations database')
@@ -76,7 +76,7 @@ def download_raw_report(city:str, yearmonth:str, out_folder:str):
     temp_filename_split = osp.basename(csv_url).split('.')
     out_path = osp.join(out_folder, f'{temp_filename_split[0]}_{temp_filename_split[1]}.{temp_filename_split[2]}')
 
-    if not osp.exists(out_path):
+    if not osp.exists(out_path) or force_save:
         logger.info('Download weather report')
         response = requests.get(csv_url, headers=HEADERS)
         response.raise_for_status()
@@ -86,7 +86,7 @@ def download_raw_report(city:str, yearmonth:str, out_folder:str):
     
     return out_path
 
-def cleaning_report(city, csv_file:str, out_folder:str):
+def cleaning_report(city, csv_file:str, out_folder:str, force_save:bool=False):
     if city not in STATIONS_DATA.keys():
         logger.error('Unknown city name')
         raise ValueError(f'city name: {city} not in Stations database')
@@ -141,7 +141,7 @@ def cleaning_report(city, csv_file:str, out_folder:str):
     filename = osp.basename(csv_file)
     out_file = osp.join(out_folder, f'clean_{filename}')
 
-    if not osp.exists(out_file):
+    if not osp.exists(out_file) or force_save:
         df.to_csv(out_file, sep=',', header=True, index=False)
     return out_file
 

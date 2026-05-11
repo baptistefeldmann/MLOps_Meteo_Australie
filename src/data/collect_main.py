@@ -66,8 +66,8 @@ def collect_inference_data(city:str):
     list_clean_report = []
     for yearmonth in month_list:
         logger.info(f'Process {city}:{yearmonth}')
-        raw_file = collect_utils.download_raw_report(city, yearmonth, inference_folder)
-        processed_file = collect_utils.cleaning_report(city, raw_file, inference_folder)
+        raw_file = collect_utils.download_raw_report(city, yearmonth, inference_folder, force_save=True)
+        processed_file = collect_utils.cleaning_report(city, raw_file, inference_folder, force_save=True)
         list_clean_report.append(processed_file)
     
     if len(list_clean_report) > 1:
@@ -97,6 +97,7 @@ def collect_inference_data(city:str):
         json.dump(last_row.to_dict(), dst, indent=2)
 
     logger.info('Collect inference completed')
+    return out_path
 
 def collect_training_data():
     raw_folder = osp.join(DATA_FOLDER, 'raw')
