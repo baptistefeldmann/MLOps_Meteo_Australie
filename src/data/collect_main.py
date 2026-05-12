@@ -7,6 +7,7 @@ import logging, sys
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
+from tqdm import tqdm
 
 # Local modules
 import collect_utils
@@ -223,6 +224,34 @@ def compute_training_features(processed_reports:dict, replace:bool=False):
     
     logger.info('Features computing completed')
 
+def create_datasets(data_train_path:str, data_test_path:str, data_valid_path:str,
+                    train_ratio:float=0.75, test_ratio:float=0.2):
+    logger.info('Create datasets')
+    list_data_files = glob.glob(osp.join(DATA_FOLDER, 'features', '*.parquet'))
+    list_train_df = []
+    list_test_df = []
+    list_valid_df = []
+
+    for filepath in tqdm(list_data_files):
+        df = pd.read_parquet(filepath)
+        df.drop(['Date'], inplace=True, axis=1)
+        idx_train = int(len(df) * train_ratio)
+        idx_test = idx_train + int(len(df) * test_ratio)
+
+        X_train, X_test, X_valid  = df.iloc[:idx_train], df.iloc[idx_train:idx_test], df.iloc[idx_test:]
+        list_train_df.append(X_train)
+        list_test_df.append(X_test)
+        list_valid_df.append(X_valid)
+
+    data_train_df = pd.concat(list_train_df, ignore_index=True)
+    data_test_df = pd.concat(list_test_df, ignore_index=True)
+    data_valid_df = pd.concat(list_valid_df, ignore_index=True)
+
+    data_train_df.to_parquet(data_train_path, index=False)
+    data_test_df.to_parquet(data_test_path, index=False)
+    data_valid_df.to_parquet(data_valid_path, index=False)
+    logger.info('Completed !')
+
 ##############
 _description = f""" 
 Collecte les données météo Australien depuis le site bom.gov.au
@@ -252,6 +281,14 @@ if __name__ == '__main__':
         dict_reports = collect_training_data()
         time.sleep(0.5)
         compute_training_features(dict_reports, kwargs.replace)
+        time.sleep(0.5)
+
+        train_path = osp.join(DATA_FOLDER, 'datasets', 'data_train.parquet')
+        test_path = osp.join(DATA_FOLDER, 'datasets', 'data_test.parquet')
+        valid_path = osp.join(DATA_FOLDER, 'datasets', 'data_valid.parquet')
+        train_ratio = 0.75
+        test_ratio = 0.2
+        create_datasets(train_path, test_path, valid_path, train_ratio, test_ratio)
     
     print('Finished !')
 

@@ -1,6 +1,5 @@
 pandas
 scikit-learn
 xgboost
-tqdm
 mlflow
 dagshub

@@ -2,8 +2,8 @@ import os
 import os.path as osp
 import json, logging, sys, argparse, glob
 import pandas as pd
-import numpy as np
-import joblib
+import dagshub
+import mlflow
 
 def get_logger():
     logger = logging.getLogger()
@@ -32,30 +32,34 @@ except:
     PROJECT_ROOT = os.getcwd()
 
 DATA_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data'))
+REGISTERED_NAME = 'XGBoost_WeatherAUS'
+TARGET = 'RainTomorrow'
+REPO_OWNER = 'EveAngelion'
+REPO_NAME = 'MLOps_Meteo_Australie'
+THRESHOLD = 0.63
 
 logger = get_logger()
 logger.debug(PROJECT_ROOT)
 
-def predict_RainTomorrow(inference_file:str, model_file:str, metrics_file:str, features_file:str):
-    target = 'RainTomorrow'
-
+def predict_RainTomorrow(inference_file:str, target_col:str='RainTomorrow'):
     logger.info('Load Model + data')
-    model = joblib.load(model_file)
-    with open(metrics_file) as src:
-        model_metrics = json.load(src)
+    # Config MLFlow
+    dagshub.init(repo_owner=REPO_OWNER, repo_name=REPO_NAME, mlflow=True)
+    model_name = f'models:/{REGISTERED_NAME}/latest'
+    model = mlflow.xgboost.load_model(model_name)
 
+    model_info = mlflow.models.get_model_info(model_name)
+    input_schema = model_info.signature.inputs.input_names()
+   
     with open(inference_file) as src:
         inference_df = pd.DataFrame([json.load(src)])
     
-    features_columns = np.load(features_file)
+    inference_df.drop(columns=[target_col], inplace=True)
+    inference_df = inference_df[input_schema]
     
-    inference_df.drop(columns=[target], inplace=True)
-    inference_df = inference_df[features_columns] #Re-organize columns names
-
-    threshold = model_metrics['best_threshold']
     proba = model.predict_proba(inference_df)[0, 1]
 
-    prediction = "Pluie demain" if proba >= threshold else "Pas de pluie demain"
+    prediction = "Pluie demain" if proba >= THRESHOLD else "Pas de pluie demain"
     confidence = abs(proba - 0.5) * 2
 
     result = {
@@ -73,8 +77,7 @@ Prédiction du modèle à partir des données météos
 """
 
 parser = argparse.ArgumentParser(description='\n'.join([_description]))
-parser.add_argument('--city', type=str, required=True, help="JSON file name")
-parser.add_argument('--model', type=str, required=False, default='v1', help="Model folder name")
+parser.add_argument('--city', type=str, required=True, help="City name")
 parser.add_argument('--verbose', type=str, required=False, default='INFO', choices=['WARNING','INFO','DEBUG'], help="Logger level")
 
 if __name__ == '__main__':
@@ -86,10 +89,7 @@ if __name__ == '__main__':
 
     list_city_files = glob.glob(osp.join(DATA_FOLDER, 'inference', f'{kwargs.city}_*.json'))
     data_file = max(list_city_files, key=osp.getctime)
-    model_file = glob.glob(osp.join(DATA_FOLDER, 'models', kwargs.model, '*.joblib'))[0]
-    metrics_file = glob.glob(osp.join(DATA_FOLDER, 'models', kwargs.model, '*_metrics.json'))[0]
-    features_file = glob.glob(osp.join(DATA_FOLDER, 'models', kwargs.model, '*_features_names.npy'))[0]
 
-    _ = predict_RainTomorrow(data_file, model_file, metrics_file, features_file)
+    _ = predict_RainTomorrow(data_file, target_col=TARGET)
     print('Finished !')
 

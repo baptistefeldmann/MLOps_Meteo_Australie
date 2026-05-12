@@ -1,8 +1,7 @@
 import os
 import os.path as osp
-import json, logging, sys, glob, argparse, time
+import json, logging, sys, argparse
 import pandas as pd
-from tqdm import tqdm
 import xgboost as xgb
 import dagshub
 import mlflow
@@ -47,34 +46,6 @@ REGISTERED_NAME = 'XGBoost_WeatherAUS'
 
 logger = get_logger()
 logger.debug(PROJECT_ROOT)
-
-def create_datasets(data_train_path:str, data_test_path:str, data_valid_path:str,
-                    train_ratio:float=0.75, test_ratio:float=0.2):
-    logger.info('Create datasets')
-    list_data_files = glob.glob(osp.join(DATA_FOLDER, 'features', '*.parquet'))
-    list_train_df = []
-    list_test_df = []
-    list_valid_df = []
-
-    for filepath in tqdm(list_data_files):
-        df = pd.read_parquet(filepath)
-        df.drop(['Date'], inplace=True, axis=1)
-        idx_train = int(len(df) * train_ratio)
-        idx_test = idx_train + int(len(df) * test_ratio)
-
-        X_train, X_test, X_valid  = df.iloc[:idx_train], df.iloc[idx_train:idx_test], df.iloc[idx_test:]
-        list_train_df.append(X_train)
-        list_test_df.append(X_test)
-        list_valid_df.append(X_valid)
-
-    data_train_df = pd.concat(list_train_df, ignore_index=True)
-    data_test_df = pd.concat(list_test_df, ignore_index=True)
-    data_valid_df = pd.concat(list_valid_df, ignore_index=True)
-
-    data_train_df.to_parquet(data_train_path, index=False)
-    data_test_df.to_parquet(data_test_path, index=False)
-    data_valid_df.to_parquet(data_valid_path, index=False)
-    logger.info('Completed !')
 
 def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target_col:str="RainTomorrow"):
     logger.info('Training model')
@@ -133,28 +104,12 @@ def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target
     
     logger.info('Completed !')
 
-def main(kwargs):
-    train_path = osp.join(DATA_FOLDER, 'datasets', 'data_train.parquet')
-    test_path = osp.join(DATA_FOLDER, 'datasets', 'data_test.parquet')
-    valid_path = osp.join(DATA_FOLDER, 'datasets', 'data_valid.parquet')
-
-    if kwargs.mode in ['datasets','ALL']:
-        create_datasets(train_path, test_path, valid_path,
-                        kwargs.train_ratio, kwargs.test_ratio)
-        time.sleep(0.5)
-    
-    if kwargs.mode in ['training','ALL']:
-        train_xgboost_pipeline(train_path, test_path, valid_path, TARGET_NAME)
-
 ##############
 _description = f""" 
 Entrainement du modèle à partir des données météos par station
 """
 
 parser = argparse.ArgumentParser(description='\n'.join([_description]))
-parser.add_argument('--mode', type=str, required=False, default='ALL', choices=['datasets','training','ALL'], help="Training mode")
-parser.add_argument('--train_ratio', type=float, required=False, default=0.75, help="Split train ratio")
-parser.add_argument('--test_ratio', type=float, required=False, default=0.2, help="Split test ratio")
 parser.add_argument('--verbose', type=str, required=False, default='INFO', choices=['WARNING','INFO','DEBUG'], help="Logger level")
 
 if __name__ == '__main__':
@@ -164,7 +119,10 @@ if __name__ == '__main__':
 
     logger.setLevel(getattr(logging,kwargs.verbose))
 
-    main(kwargs)
+    train_path = osp.join(DATA_FOLDER, 'datasets', 'data_train.parquet')
+    test_path = osp.join(DATA_FOLDER, 'datasets', 'data_test.parquet')
+    valid_path = osp.join(DATA_FOLDER, 'datasets', 'data_valid.parquet')
+    train_xgboost_pipeline(train_path, test_path, valid_path, TARGET_NAME)
     
     logger.info('Finished !')
 
