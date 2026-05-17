@@ -10,26 +10,7 @@ from dateutil.relativedelta import relativedelta
 from tqdm import tqdm
 
 # Local modules
-import collect_utils
-
-def get_logger():
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-
-    if not logger.handlers:
-        logger.setLevel(logging.INFO)
-
-        console_handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            "%(asctime)s [%(levelname)s] %(message)s",
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-    
-    # Set rasterio log level
-    logger.propagate = False
-    return logger
+import formation_mlops.MLOps_Meteo_Australie.src.data.utils as utils
 
 # Define ENV variables
 # They will soon be defined directly in the Dockerfile
@@ -45,7 +26,7 @@ MAX_LAG = 3
 with open(JSON_FILE) as src:
     STATIONS_DATA = json.load(src)
 
-logger = get_logger()
+logger = utils.get_logger()
 logger.debug(PROJECT_ROOT)
 
 def collect_inference_data(city:str):
@@ -67,8 +48,8 @@ def collect_inference_data(city:str):
     list_clean_report = []
     for yearmonth in month_list:
         logger.info(f'Process {city}:{yearmonth}')
-        raw_file = collect_utils.download_raw_report(city, yearmonth, inference_folder, force_save=True)
-        processed_file = collect_utils.cleaning_report(city, raw_file, inference_folder, force_save=True)
+        raw_file = utils.download_raw_report(city, yearmonth, inference_folder, force_save=True)
+        processed_file = utils.cleaning_report(city, raw_file, inference_folder, force_save=True)
         list_clean_report.append(processed_file)
     
     if len(list_clean_report) > 1:
@@ -87,7 +68,7 @@ def collect_inference_data(city:str):
     df = pd.read_csv(processed_file)
     df['Date'] = pd.to_datetime(df['Date'],errors="coerce")
 
-    features = collect_utils.CreateFeatures(df)
+    features = utils.CreateFeatures(df)
     features.build_features()
     last_row = features.df.iloc[-1].fillna(0)
     last_row.drop(['Date'], inplace=True)
@@ -124,8 +105,8 @@ def collect_training_data():
         yearmonth = month_list[0]
         out_folder = osp.join(processed_folder, 'not_completed')
         try:
-            raw_file = collect_utils.download_raw_report(city, yearmonth, raw_folder)
-            processed_file = collect_utils.cleaning_report(city, raw_file, out_folder)
+            raw_file = utils.download_raw_report(city, yearmonth, raw_folder)
+            processed_file = utils.cleaning_report(city, raw_file, out_folder)
             list_clean_report.append(processed_file)
         except Exception as e:
             logger.warning(e)
@@ -136,8 +117,8 @@ def collect_training_data():
             os.makedirs(out_folder, exist_ok=True)
 
             try:
-                raw_file = collect_utils.download_raw_report(city, yearmonth, raw_folder)
-                processed_file = collect_utils.cleaning_report(city, raw_file, out_folder)
+                raw_file = utils.download_raw_report(city, yearmonth, raw_folder)
+                processed_file = utils.cleaning_report(city, raw_file, out_folder)
                 list_clean_report.append(processed_file)
             except Exception as e:
                 logger.warning(e)
@@ -163,7 +144,7 @@ def compute_training_features(processed_reports:dict, replace:bool=False):
         for city in list_city:
             extract_df = df[df['Location']==city]
 
-            features = collect_utils.CreateFeatures(extract_df)
+            features = utils.CreateFeatures(extract_df)
             features.build_features()
             new_df = features.df.dropna()
             logger.info(f'{city} : {len(extract_df)} -> {len(new_df)}')
@@ -186,7 +167,7 @@ def compute_training_features(processed_reports:dict, replace:bool=False):
         merge_df = merge_df.sort_values(by='Date')
 
         logger.info('Create features')
-        features = collect_utils.CreateFeatures(merge_df)
+        features = utils.CreateFeatures(merge_df)
         features.build_features()
         new_df = features.df.dropna()
         logger.info(f'{city} : {len(df)} -> {len(new_df)}')

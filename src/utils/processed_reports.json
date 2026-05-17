@@ -1,0 +1,310 @@
+{
+  "Adelaide": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW5081_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW5081_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW5081_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW5081_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW5081_202601.csv"
+  ],
+  "Albany": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW6001_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW6001_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW6001_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW6001_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW6001_202601.csv"
+  ],
+  "Albury": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2002_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2002_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2002_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2002_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2002_202601.csv"
+  ],
+  "AliceSprings": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW8002_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW8002_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW8002_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW8002_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW8002_202601.csv"
+  ],
+  "BadgerysCreek": [],
+  "Ballarat": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW3005_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW3005_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW3005_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW3005_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW3005_202601.csv"
+  ],
+  "Bendigo": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW3008_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW3008_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW3008_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW3008_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW3008_202601.csv"
+  ],
+  "Brisbane": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW4019_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW4019_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW4019_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW4019_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW4019_202601.csv"
+  ],
+  "Cairns": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW4024_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW4024_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW4024_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW4024_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW4024_202601.csv"
+  ],
+  "Canberra": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2801_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2801_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2801_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2801_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2801_202601.csv"
+  ],
+  "Cobar": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2029_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2029_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2029_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2029_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2029_202601.csv"
+  ],
+  "CoffsHarbour": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2030_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2030_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2030_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2030_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2030_202601.csv"
+  ],
+  "Dartmoor": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW3101_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW3101_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW3101_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW3101_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW3101_202601.csv"
+  ],
+  "Darwin": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW8014_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW8014_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW8014_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW8014_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW8014_202601.csv"
+  ],
+  "GoldCoast": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW4050_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW4050_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW4050_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW4050_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW4050_202601.csv"
+  ],
+  "Hobart": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW7021_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW7021_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW7021_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW7021_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW7021_202601.csv"
+  ],
+  "Katherine": [],
+  "Launceston": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW7025_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW7025_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW7025_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW7025_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW7025_202601.csv"
+  ],
+  "Melbourne": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW3033_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW3033_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW3033_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW3033_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW3033_202601.csv"
+  ],
+  "MelbourneAirport": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW3049_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW3049_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW3049_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW3049_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW3049_202601.csv"
+  ],
+  "Mildura": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW3051_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW3051_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW3051_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW3051_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW3051_202601.csv"
+  ],
+  "Moree": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2084_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2084_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2084_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2084_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2084_202601.csv"
+  ],
+  "MountGambier": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW5041_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW5041_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW5041_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW5041_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW5041_202601.csv"
+  ],
+  "MountGinini": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2804_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2804_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2804_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2804_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2804_202601.csv"
+  ],
+  "Newcastle": [],
+  "Nhil": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW3059_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW3059_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW3059_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW3059_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW3059_202601.csv"
+  ],
+  "NorahHead": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2099_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2099_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2099_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2099_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2099_202601.csv"
+  ],
+  "NorfolkIsland": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2100_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2100_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2100_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2100_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2100_202601.csv"
+  ],
+  "Nuriootpa": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW5049_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW5049_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW5049_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW5049_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW5049_202601.csv"
+  ],
+  "PearceRAAF": [],
+  "Penrith": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2111_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2111_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2111_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2111_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2111_202601.csv"
+  ],
+  "Perth": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW6111_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW6111_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW6111_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW6111_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW6111_202601.csv"
+  ],
+  "PerthAirport": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW6110_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW6110_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW6110_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW6110_202602.csv"
+  ],
+  "Portland": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW3068_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW3068_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW3068_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW3068_202601.csv"
+  ],
+  "Richmond": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2119_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2119_202601.csv"
+  ],
+  "Sale": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW3022_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW3022_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW3022_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW3022_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW3022_202601.csv"
+  ],
+  "SalmonGums": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW6119_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW6119_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW6119_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW6119_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW6119_202601.csv"
+  ],
+  "Sydney": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2124_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2124_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2124_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2124_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2124_202601.csv"
+  ],
+  "SydneyAirport": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2125_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2125_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2125_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2125_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2125_202601.csv"
+  ],
+  "Townsville": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW4128_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW4128_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW4128_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW4128_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW4128_202601.csv"
+  ],
+  "Tuggeranong": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2802_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2802_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2802_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2802_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2802_202601.csv"
+  ],
+  "Uluru": [],
+  "WaggaWagga": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2139_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2139_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2139_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2139_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2139_202601.csv"
+  ],
+  "Walpole": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW6138_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW6138_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW6138_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW6138_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW6138_202601.csv"
+  ],
+  "Watsonia": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW3079_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW3079_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW3079_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW3079_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW3079_202601.csv"
+  ],
+  "Williamtown": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2145_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2145_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2145_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2145_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2145_202601.csv"
+  ],
+  "Witchcliffe": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW6081_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW6081_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW6081_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW6081_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW6081_202601.csv"
+  ],
+  "Wollongong": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW2146_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW2146_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW2146_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW2146_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW2146_202601.csv"
+  ],
+  "Woomera": [
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/not_completed/clean_IDCJDW5072_202605.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202604/clean_IDCJDW5072_202604.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202603/clean_IDCJDW5072_202603.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202602/clean_IDCJDW5072_202602.csv",
+    "/home/bfeldmann/projects/formation_mlops/MLOps_Meteo_Australie/data/processed/202601/clean_IDCJDW5072_202601.csv"
+  ]
+}
