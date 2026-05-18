@@ -78,16 +78,18 @@ def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target
     with mlflow.start_run(run_name=run_name) as run:
         mlflow.log_params(params)
         mlflow.log_metrics(metrics)
-        model_info = mlflow.xgboost.log_model(
-                        xgb_model=model, input_example=X_val,
-                        name='model', signature=signature,
-                        registered_model_name=registered_name
-                    )
+        mlflow.xgboost.log_model(
+            xgb_model=model, input_example=X_val,
+            name='model', signature=signature,
+            registered_model_name=registered_name
+        )
 
         time.sleep(2)
-        utils.models_comparison(registered_name,
-                             current_run_id=run.info.run_id,
-                             metrics=metrics)
+        utils.models_comparison(
+            registered_name,
+            current_run_id=run.info.run_id,
+            metrics=metrics
+        )
     
     logger.info('Completed !')
 

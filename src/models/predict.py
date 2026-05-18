@@ -36,7 +36,8 @@ REGISTERED_NAME = 'XGBoost_WeatherAUS'
 TARGET = 'RainTomorrow'
 REPO_OWNER = 'EveAngelion'
 REPO_NAME = 'MLOps_Meteo_Australie'
-THRESHOLD = 0.63
+ALIAS = 'best_model'
+THRESHOLD = 0.60
 
 logger = get_logger()
 logger.debug(PROJECT_ROOT)
@@ -45,7 +46,7 @@ def predict_RainTomorrow(inference_file:str, target_col:str='RainTomorrow'):
     logger.info('Load Model + data')
     # Config MLFlow
     dagshub.init(repo_owner=REPO_OWNER, repo_name=REPO_NAME, mlflow=True)
-    model_name = f'models:/{REGISTERED_NAME}/latest'
+    model_name = f'models:/{REGISTERED_NAME}@{ALIAS}'
     model = mlflow.xgboost.load_model(model_name)
 
     model_info = mlflow.models.get_model_info(model_name)
