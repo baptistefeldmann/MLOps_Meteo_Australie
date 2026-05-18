@@ -1,6 +1,6 @@
 import os
 import os.path as osp
-import json, logging, sys, argparse
+import json, logging, argparse, time
 import pandas as pd
 import xgboost as xgb
 import dagshub
@@ -9,25 +9,6 @@ from mlflow.models import infer_signature
 
 # Local modules
 import utils
-
-def get_logger():
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-
-    if not logger.handlers:
-        logger.setLevel(logging.INFO)
-
-        console_handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            "%(asctime)s [%(levelname)s] %(message)s",
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-    
-    # Set rasterio log level
-    logger.propagate = False
-    return logger
 
 # Define ENV variables
 # They will soon be defined directly in the Dockerfile
@@ -44,7 +25,7 @@ EXPERIMENT_NAME = "Weather_AUS_Models"
 TARGET_NAME = 'RainTomorrow'
 REGISTERED_NAME = 'XGBoost_WeatherAUS'
 
-logger = get_logger()
+logger = utils.get_logger()
 logger.debug(PROJECT_ROOT)
 
 def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target_col:str="RainTomorrow"):
@@ -70,7 +51,7 @@ def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target
     X_test  = test_df.drop(columns=target_col)
 
     params = {
-        'n_estimators': 2000,
+        'n_estimators': 3000,
         'learning_rate': 0.03,
         'max_depth': 5,
         'subsample': 0.8,
@@ -80,6 +61,7 @@ def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target
         'reg_lambda': 1.0,
         'eval_metric': "logloss",
         'scale_pos_weight': (y_train == 0).sum() / (y_train == 1).sum(),
+        'early_stopping_rounds': 50,
         'random_state': RANDOM_SEED
     }
 
@@ -87,7 +69,7 @@ def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target
     model.fit(
         X_train, y_train,
         eval_set=[(X_test, y_test)],
-        verbose=False
+        verbose=100
     )
 
     metrics = utils.evaluate(model, X_val, y_val, "VALIDATION")
@@ -96,11 +78,16 @@ def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target
     with mlflow.start_run(run_name=run_name) as run:
         mlflow.log_params(params)
         mlflow.log_metrics(metrics)
-        mlflow.xgboost.log_model(
-            xgb_model=model, input_example=X_val,
-            name='model', signature=signature,
-            registered_model_name=registered_name
-        )
+        model_info = mlflow.xgboost.log_model(
+                        xgb_model=model, input_example=X_val,
+                        name='model', signature=signature,
+                        registered_model_name=registered_name
+                    )
+
+        time.sleep(2)
+        utils.models_comparison(registered_name,
+                             current_run_id=run.info.run_id,
+                             metrics=metrics)
     
     logger.info('Completed !')
 

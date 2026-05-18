@@ -2,6 +2,7 @@ import mlflow
 from mlflow.tracking import MlflowClient
 from datetime import datetime
 import numpy as np
+import logging, sys
 from sklearn.metrics import (
     accuracy_score,
     roc_auc_score,
@@ -12,6 +13,27 @@ from sklearn.metrics import (
     precision_recall_curve,
     auc
 )
+
+def get_logger():
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+
+        console_handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            "%(asctime)s [%(levelname)s] %(message)s",
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+    
+    # Set rasterio log level
+    logger.propagate = False
+    return logger
+
+logger = get_logger()
 
 def get_next_run_name(experiment_name):
     client = MlflowClient()
@@ -98,4 +120,57 @@ def optimize_threshold(y_true, proba):
 
     return best_t, best_f1
 
+def models_comparison(model_name, current_run_id, metrics, eps=0.001):
+    client = MlflowClient()
 
+    current_pr_auc = metrics['pr_auc']
+    current_logloss = metrics['logloss']
+
+    all_versions = client.search_model_versions(f"name='{model_name}'")
+    current_version_obj = next((v for v in all_versions if v.run_id == current_run_id), None)
+    current_version = current_version_obj.version
+
+    try:
+        champion_version = client.get_model_version_by_alias(model_name, "best_model")
+        has_champion = True
+    except Exception as e:
+        logger.warning(f"Best_model version not found : {e}")
+        has_champion = False
+    
+    if not has_champion:
+        logger.info("No current best_model. Current model becomes best_mode version !")
+        # On lui attribue l'alias 'best_model'
+        client.set_registered_model_alias(model_name, "best_model", str(current_version))
+        return True
+
+    # Si un champion existe, on récupère ses métriques pour comparer
+    champion_run = client.get_run(champion_version.run_id)
+    champion_metrics = champion_run.data.metrics
+    
+    champion_pr_auc = champion_metrics.get('pr_auc', 0)
+    champion_logloss = champion_metrics.get('logloss', float('inf'))
+    
+    logger.info(f"Actual Best_model (Run: {champion_version.run_id}) -> PR_AUC: {champion_pr_auc:.4f} | LogLoss: {champion_logloss:.4f}")
+    logger.info(f"Challenger training model (Run: {current_run_id}) -> PR_AUC: {current_pr_auc:.4f} | LogLoss: {current_logloss:.4f}")
+    
+    # Logique de décision : Le modèle est-il meilleur ?
+    # Condition principale : PR_AUC supérieur d'au moins un micro-seuil (ex: 0.001) pour éviter les changements inutiles
+    is_better = False
+    if current_pr_auc > champion_pr_auc + eps:
+        is_better = True
+    elif abs(current_pr_auc - champion_pr_auc) <= eps:
+        # En cas d'égalité sur le PR_AUC, on départage avec la LogLoss (la plus basse est la meilleure)
+        if current_logloss < champion_logloss:
+            is_better = True
+
+    # Action de remplacement si le modèle est meilleur
+    if is_better:
+        logger.info("🎉 Challenger model is BETTER !!")
+        # On déplace l'alias 'champion' sur cette nouvelle version (MLflow gère le retrait sur l'ancienne auto)
+        client.set_registered_model_alias(model_name, "best_model", str(current_version))
+        
+        logger.info(f"New Best_model successfully registered (Version {current_version})")
+        return True
+    else:
+        logger.info("❌ Challenger model is not the best. Keeping actual Best_model.")
+        return False
