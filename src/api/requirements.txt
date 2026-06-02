@@ -1,27 +1,14 @@
-# Data
+fastapi
+uvicorn[standard]
+
 pandas
 numpy
 pyarrow
 
-# ML
 xgboost
 scikit-learn
 
-# Experiment tracking
 mlflow
 dagshub
 
-# API
-fastapi
-uvicorn[standard]
-
-# UI
-streamlit
-folium
-streamlit-folium
-
-# DVC
-dvc
-
-# Utilities
 requests

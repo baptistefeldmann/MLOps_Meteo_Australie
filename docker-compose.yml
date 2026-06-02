@@ -1,0 +1,44 @@
+services:
+  collect-training:
+    build:
+      context: .
+      dockerfile: src/data/Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app/src/pipelines
+    command: dvc repro dvc.yaml
+    env_file:
+      - .env
+
+  collect-inference:
+    build:
+      context: .
+      dockerfile: src/data/Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python src/data/collect_inference.py --city ${CITY:-Canberra}
+    env_file:
+      - .env
+
+  training:
+    build:
+      context: .
+      dockerfile: src/models/Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python src/models/training.py
+    env_file:
+      - .env
+
+  predict:
+    build:
+      context: .
+      dockerfile: src/models/Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python src/models/predict.py --city ${CITY:-Canberra}
+    env_file:
+      - .env

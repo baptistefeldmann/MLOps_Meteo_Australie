@@ -2,12 +2,14 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN pip install uv
+RUN pip install --no-cache-dir uv
 
-COPY requirements.txt .
+COPY src/data/requirements.txt /tmp/requirements.txt
+RUN uv pip install --system -r /tmp/requirements.txt
 
-RUN uv pip install --system -r requirements.txt
+COPY . /app
 
-COPY . .
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app/src
 
-ENTRYPOINT ["python", "collect_main.py"]
+CMD ["python", "src/data/collect_main.py"]
