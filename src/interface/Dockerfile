@@ -2,8 +2,13 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY . .
+RUN pip install --no-cache-dir uv
 
-RUN pip install -r requirements.txt
+COPY src/interface/requirements.txt /tmp/requirements.txt
+RUN uv pip install --system -r /tmp/requirements.txt
 
-# CMD ["streamlit", "run", "app.py"]
+COPY . /app
+
+ENV PYTHONUNBUFFERED=1
+
+CMD ["streamlit", "run", "src/interface/app.py", "--server.address=0.0.0.0", "--server.port=8501"]

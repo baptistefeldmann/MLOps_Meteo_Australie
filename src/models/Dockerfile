@@ -2,10 +2,13 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN pip install uv
+RUN pip install --no-cache-dir uv
 
-COPY requirements.txt .
+COPY src/models/requirements.txt /tmp/requirements.txt
+RUN uv pip install --system -r /tmp/requirements.txt
 
-RUN uv pip install --system -r requirements.txt
+COPY . /app
 
-COPY . .
+ENV PYTHONUNBUFFERED=1
+
+CMD ["bash"]
