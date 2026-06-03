@@ -17,7 +17,7 @@ services:
     volumes:
       - .:/app
     working_dir: /app
-    command: python src/data/collect_inference.py --city ${CITY:-Canberra}
+    command: python src/data/collect_inference.py --city ${CITY:-Sydney}
     env_file:
       - .env
 
@@ -39,6 +39,31 @@ services:
     volumes:
       - .:/app
     working_dir: /app
-    command: python src/models/predict.py --city ${CITY:-Canberra}
+    command: python src/models/predict.py --city ${CITY:-Sydney}
     env_file:
       - .env
+
+  api:
+    build:
+      context: .
+      dockerfile: src/api/Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    working_dir: /app
+    env_file:
+      - .env
+
+  interface:
+    build:
+      context: .
+      dockerfile: src/interface/Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "8501:8501"
+    working_dir: /app
+    env_file:
+      - .env
+  
