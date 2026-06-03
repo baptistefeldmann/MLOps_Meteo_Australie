@@ -5,27 +5,27 @@ stages:
     deps:
     - path: ../data/collect_raw.py
       hash: md5
-      md5: bda41ece79129ed464fcf83bd7efdcf6
-      size: 4107
+      md5: eb6bfc9467d4edfc5efe82af5a485853
+      size: 3912
     outs:
     - path: ../../data/processed
       hash: md5
-      md5: 207bd94911b3f062b4459a26e2241574.dir
-      size: 14741944
-      nfiles: 220
+      md5: 9db2ec336cb6675135bbb061c34520d4.dir
+      size: 168681
+      nfiles: 88
     - path: ../../data/raw
       hash: md5
-      md5: 95476a08cf21ef5f86b855558cfc994c.dir
-      size: 688981
-      nfiles: 215
+      md5: d6efafc5dd23fa4150f4b1cdbd1ff5c7.dir
+      size: 206937
+      nfiles: 88
   features:
-    cmd: python ../data/create_features.py --replace
+    cmd: python ../data/create_features.py
     deps:
     - path: ../../data/processed
       hash: md5
-      md5: 207bd94911b3f062b4459a26e2241574.dir
-      size: 14741944
-      nfiles: 220
+      md5: 9db2ec336cb6675135bbb061c34520d4.dir
+      size: 168681
+      nfiles: 88
     - path: ../data/create_features.py
       hash: md5
       md5: d14e27cce948ea9924d75b553159d663
@@ -33,17 +33,17 @@ stages:
     outs:
     - path: ../../data/features
       hash: md5
-      md5: dede11a099a2282a7abbdc24f96a5ce4.dir
-      size: 5958997
-      nfiles: 45
+      md5: a33650f1a703888238af37dc020b1058.dir
+      size: 974695
+      nfiles: 39
   datasets:
     cmd: python ../data/create_datasets.py
     deps:
     - path: ../../data/features
       hash: md5
-      md5: dede11a099a2282a7abbdc24f96a5ce4.dir
-      size: 5958997
-      nfiles: 45
+      md5: a33650f1a703888238af37dc020b1058.dir
+      size: 974695
+      nfiles: 39
     - path: ../data/create_datasets.py
       hash: md5
       md5: f2bb08519b4f328ddbfdee4cd14b408a
@@ -51,6 +51,6 @@ stages:
     outs:
     - path: ../../data/datasets
       hash: md5
-      md5: 46528e225bcb414a886aa9256abe121f.dir
-      size: 3372104
+      md5: 9718b1ddac9989a8ff2d59bcf39df1cd.dir
+      size: 118230
       nfiles: 3

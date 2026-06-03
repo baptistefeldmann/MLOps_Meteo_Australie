@@ -28,6 +28,7 @@ logger.debug(PROJECT_ROOT)
 
 def collect_inference_data(city:str):
     inference_folder = osp.join(DATA_FOLDER, 'inference')
+    os.makedirs(inference_folder, exist_ok=True)
 
     if city not in STATIONS_DATA.keys():
         logger.error('Unknown city name')
