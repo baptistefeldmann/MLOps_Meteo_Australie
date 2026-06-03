@@ -10,7 +10,7 @@ from dateutil.relativedelta import relativedelta
 from tqdm import tqdm
 
 # Local modules
-import formation_mlops.MLOps_Meteo_Australie.src.data.utils as utils
+import utils
 
 # Define ENV variables
 # They will soon be defined directly in the Dockerfile
