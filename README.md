@@ -43,3 +43,189 @@ Présentation fonctionnement :
     -> prediction : python predict.py --city Canberra
     -> visualisation interface : streamlit run app.py
 
+
+# Docker Compose Usage
+
+## Build all images
+
+```bash
+docker compose build
+```
+
+---
+
+## 1. Prepare training data
+
+Run the DVC pipeline to collect raw data, create features and generate training datasets.
+
+```bash
+docker compose run --rm collect-training
+```
+
+Equivalent to:
+
+```bash
+dvc repro src/pipelines/dvc.yaml
+```
+
+---
+
+## 2. Train the model
+
+Train the XGBoost model and register it in MLflow / Dagshub.
+
+```bash
+docker compose run --rm training
+```
+
+Equivalent to:
+
+```bash
+python src/models/training.py
+```
+
+---
+
+## 3. Prepare inference data
+
+Generate the latest weather features for a specific city and save them in `data/inference`.
+
+Default city:
+
+```bash
+docker compose run --rm collect-inference
+```
+
+Specify a city:
+
+```bash
+CITY=Canberra docker compose run --rm collect-inference
+```
+
+Equivalent to:
+
+```bash
+python src/data/collect_inference.py --city Canberra
+```
+
+---
+
+## 4. Run prediction from CLI
+
+Use the latest inference JSON file for a city and predict tomorrow's weather.
+
+Default city:
+
+```bash
+docker compose run --rm predict
+```
+
+Specify a city:
+
+```bash
+CITY=Canberra docker compose run --rm collect-inference
+CITY=Canberra docker compose run --rm predict
+```
+
+Equivalent to:
+
+```bash
+python src/models/predict.py --city Canberra
+```
+
+---
+
+## 5. Run API service
+
+Start the FastAPI application.
+
+```bash
+docker compose up -d api
+```
+
+Check logs:
+
+```bash
+docker compose logs -f api
+```
+
+Test endpoints:
+
+```bash
+curl "http://localhost:8000/health"
+```
+
+```bash
+curl "http://localhost:8000/predict?city=Sydney"
+```
+
+Stop API:
+
+```bash
+docker compose stop api
+```
+
+---
+
+## 6. Run Streamlit interface
+
+Start the Streamlit application.
+
+```bash
+docker compose up -d interface
+```
+
+Check logs:
+
+```bash
+docker compose logs -f interface
+```
+
+Open in browser:
+
+```text
+http://localhost:8501
+```
+
+Stop interface:
+
+```bash
+docker compose stop interface
+```
+
+---
+
+## Full workflow
+
+### Initial model training
+
+```bash
+docker compose run --rm collect-training
+docker compose run --rm training
+```
+
+### Generate inference data
+
+```bash
+CITY=Sydney docker compose run --rm collect-inference
+```
+
+### Start API
+
+```bash
+docker compose up -d api
+```
+
+### Predict
+
+```bash
+curl "http://localhost:8000/predict?city=Sydney"
+```
+
+---
+
+## Stop all services
+
+```bash
+docker compose down
+```
