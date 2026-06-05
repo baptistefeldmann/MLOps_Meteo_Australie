@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 # Local modules
-import utils
+from src.data import utils
 
 # Define ENV variables
 # They will soon be defined directly in the Dockerfile

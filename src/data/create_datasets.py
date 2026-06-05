@@ -6,7 +6,7 @@ import logging
 from tqdm import tqdm
 
 # Local modules
-import utils
+from src.data import utils
 
 # Define ENV variables
 # They will soon be defined directly in the Dockerfile

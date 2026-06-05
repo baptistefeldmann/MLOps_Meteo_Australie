@@ -9,6 +9,8 @@ services:
     command: dvc repro dvc.yaml
     env_file:
       - .env
+    environment:
+      PYTHONPATH: /app
 
   collect-inference:
     build:
@@ -17,7 +19,7 @@ services:
     volumes:
       - .:/app
     working_dir: /app
-    command: python src/data/collect_inference.py --city ${CITY:-Sydney}
+    command: python -m src.data.collect_inference --city ${CITY:-Sydney}
     env_file:
       - .env
 
@@ -28,7 +30,7 @@ services:
     volumes:
       - .:/app
     working_dir: /app
-    command: python src/models/training.py
+    command: python -m src.models.training
     env_file:
       - .env
 
@@ -39,7 +41,7 @@ services:
     volumes:
       - .:/app
     working_dir: /app
-    command: python src/models/predict.py --city ${CITY:-Sydney}
+    command: python -m src.models.predict --city ${CITY:-Sydney}
     env_file:
       - .env
 

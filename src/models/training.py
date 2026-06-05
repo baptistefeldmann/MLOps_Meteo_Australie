@@ -8,7 +8,7 @@ import mlflow
 from mlflow.models import infer_signature
 
 # Local modules
-import utils
+from src.models import utils
 
 # Define ENV variables
 # They will soon be defined directly in the Dockerfile
