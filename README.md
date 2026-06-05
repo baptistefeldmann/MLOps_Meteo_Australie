@@ -151,12 +151,11 @@ docker compose logs -f api
 
 Test endpoints:
 
-```bash
-curl "http://localhost:8000/health"
-```
 
 ```bash
-curl "http://localhost:8000/predict?city=Sydney"
+curl -X POST http://127.0.0.1:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"city":"Sydney"}'
 ```
 
 Stop API:
