@@ -1,0 +1,71 @@
+services:
+  collect-training:
+    build:
+      context: .
+      dockerfile: src/data/Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app/src/pipelines
+    command: dvc repro dvc.yaml
+    env_file:
+      - .env
+    environment:
+      PYTHONPATH: /app
+
+  collect-inference:
+    build:
+      context: .
+      dockerfile: src/data/Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python -m src.data.collect_inference --city ${CITY:-Sydney}
+    env_file:
+      - .env
+
+  training:
+    build:
+      context: .
+      dockerfile: src/models/Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python -m src.models.training
+    env_file:
+      - .env
+
+  predict:
+    build:
+      context: .
+      dockerfile: src/models/Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python -m src.models.predict --city ${CITY:-Sydney}
+    env_file:
+      - .env
+
+  api:
+    build:
+      context: .
+      dockerfile: src/api/Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    working_dir: /app
+    env_file:
+      - .env
+
+  interface:
+    build:
+      context: .
+      dockerfile: src/interface/Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "8501:8501"
+    working_dir: /app
+    env_file:
+      - .env
+  

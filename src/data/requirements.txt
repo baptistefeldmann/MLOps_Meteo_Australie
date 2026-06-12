@@ -1,0 +1,5 @@
+pandas
+numpy
+dvc[s3]
+pyarrow
+tqdm

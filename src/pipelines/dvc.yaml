@@ -1,0 +1,24 @@
+stages:
+  raw_processed:
+    cmd: python ../data/collect_raw.py
+    deps:
+    - ../data/collect_raw.py
+    outs:
+    - ../../data/processed:
+        persist: true
+    - ../../data/raw
+  features:
+    cmd: python ../data/create_features.py
+    deps:
+    - ../../data/processed
+    - ../data/create_features.py
+    outs:
+    - ../../data/features:
+        persist: true
+  datasets:
+    cmd: python ../data/create_datasets.py
+    deps:
+    - ../../data/features
+    - ../data/create_datasets.py
+    outs:
+    - ../../data/datasets

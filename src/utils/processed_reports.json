@@ -1,0 +1,183 @@
+{
+  "Adelaide": [
+    "/app/data/processed/not_completed/clean_IDCJDW5081_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW5081_202605.csv"
+  ],
+  "Albany": [
+    "/app/data/processed/not_completed/clean_IDCJDW6001_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW6001_202605.csv"
+  ],
+  "Albury": [
+    "/app/data/processed/not_completed/clean_IDCJDW2002_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2002_202605.csv"
+  ],
+  "AliceSprings": [
+    "/app/data/processed/not_completed/clean_IDCJDW8002_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW8002_202605.csv"
+  ],
+  "BadgerysCreek": [],
+  "Ballarat": [
+    "/app/data/processed/not_completed/clean_IDCJDW3005_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW3005_202605.csv"
+  ],
+  "Bendigo": [
+    "/app/data/processed/not_completed/clean_IDCJDW3008_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW3008_202605.csv"
+  ],
+  "Brisbane": [
+    "/app/data/processed/not_completed/clean_IDCJDW4019_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW4019_202605.csv"
+  ],
+  "Cairns": [
+    "/app/data/processed/not_completed/clean_IDCJDW4024_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW4024_202605.csv"
+  ],
+  "Canberra": [
+    "/app/data/processed/not_completed/clean_IDCJDW2801_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2801_202605.csv"
+  ],
+  "Cobar": [
+    "/app/data/processed/not_completed/clean_IDCJDW2029_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2029_202605.csv"
+  ],
+  "CoffsHarbour": [
+    "/app/data/processed/not_completed/clean_IDCJDW2030_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2030_202605.csv"
+  ],
+  "Dartmoor": [
+    "/app/data/processed/not_completed/clean_IDCJDW3101_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW3101_202605.csv"
+  ],
+  "Darwin": [
+    "/app/data/processed/not_completed/clean_IDCJDW8014_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW8014_202605.csv"
+  ],
+  "GoldCoast": [
+    "/app/data/processed/not_completed/clean_IDCJDW4050_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW4050_202605.csv"
+  ],
+  "Hobart": [
+    "/app/data/processed/not_completed/clean_IDCJDW7021_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW7021_202605.csv"
+  ],
+  "Katherine": [],
+  "Launceston": [
+    "/app/data/processed/not_completed/clean_IDCJDW7025_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW7025_202605.csv"
+  ],
+  "Melbourne": [
+    "/app/data/processed/not_completed/clean_IDCJDW3033_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW3033_202605.csv"
+  ],
+  "MelbourneAirport": [
+    "/app/data/processed/not_completed/clean_IDCJDW3049_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW3049_202605.csv"
+  ],
+  "Mildura": [
+    "/app/data/processed/not_completed/clean_IDCJDW3051_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW3051_202605.csv"
+  ],
+  "Moree": [
+    "/app/data/processed/not_completed/clean_IDCJDW2084_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2084_202605.csv"
+  ],
+  "MountGambier": [
+    "/app/data/processed/not_completed/clean_IDCJDW5041_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW5041_202605.csv"
+  ],
+  "MountGinini": [
+    "/app/data/processed/not_completed/clean_IDCJDW2804_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2804_202605.csv"
+  ],
+  "Newcastle": [],
+  "Nhil": [
+    "/app/data/processed/not_completed/clean_IDCJDW3059_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW3059_202605.csv"
+  ],
+  "NorahHead": [
+    "/app/data/processed/not_completed/clean_IDCJDW2099_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2099_202605.csv"
+  ],
+  "NorfolkIsland": [
+    "/app/data/processed/not_completed/clean_IDCJDW2100_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2100_202605.csv"
+  ],
+  "Nuriootpa": [
+    "/app/data/processed/not_completed/clean_IDCJDW5049_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW5049_202605.csv"
+  ],
+  "PearceRAAF": [],
+  "Penrith": [
+    "/app/data/processed/not_completed/clean_IDCJDW2111_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2111_202605.csv"
+  ],
+  "Perth": [
+    "/app/data/processed/not_completed/clean_IDCJDW6111_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW6111_202605.csv"
+  ],
+  "PerthAirport": [
+    "/app/data/processed/not_completed/clean_IDCJDW6110_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW6110_202605.csv"
+  ],
+  "Portland": [
+    "/app/data/processed/not_completed/clean_IDCJDW3068_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW3068_202605.csv"
+  ],
+  "Richmond": [
+    "/app/data/processed/not_completed/clean_IDCJDW2119_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2119_202605.csv"
+  ],
+  "Sale": [
+    "/app/data/processed/not_completed/clean_IDCJDW3022_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW3022_202605.csv"
+  ],
+  "SalmonGums": [
+    "/app/data/processed/not_completed/clean_IDCJDW6119_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW6119_202605.csv"
+  ],
+  "Sydney": [
+    "/app/data/processed/not_completed/clean_IDCJDW2124_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2124_202605.csv"
+  ],
+  "SydneyAirport": [
+    "/app/data/processed/not_completed/clean_IDCJDW2125_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2125_202605.csv"
+  ],
+  "Townsville": [
+    "/app/data/processed/not_completed/clean_IDCJDW4128_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW4128_202605.csv"
+  ],
+  "Tuggeranong": [
+    "/app/data/processed/not_completed/clean_IDCJDW2802_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2802_202605.csv"
+  ],
+  "Uluru": [],
+  "WaggaWagga": [
+    "/app/data/processed/not_completed/clean_IDCJDW2139_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2139_202605.csv"
+  ],
+  "Walpole": [
+    "/app/data/processed/not_completed/clean_IDCJDW6138_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW6138_202605.csv"
+  ],
+  "Watsonia": [
+    "/app/data/processed/not_completed/clean_IDCJDW3079_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW3079_202605.csv"
+  ],
+  "Williamtown": [
+    "/app/data/processed/not_completed/clean_IDCJDW2145_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2145_202605.csv"
+  ],
+  "Witchcliffe": [
+    "/app/data/processed/not_completed/clean_IDCJDW6081_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW6081_202605.csv"
+  ],
+  "Wollongong": [
+    "/app/data/processed/not_completed/clean_IDCJDW2146_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW2146_202605.csv"
+  ],
+  "Woomera": [
+    "/app/data/processed/not_completed/clean_IDCJDW5072_202606.csv",
+    "/app/data/processed/202605/clean_IDCJDW5072_202605.csv"
+  ]
+}
