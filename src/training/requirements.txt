@@ -3,3 +3,7 @@ scikit-learn
 xgboost
 mlflow
 dagshub
+numpy
+dvc[s3]
+pyarrow
+tqdm

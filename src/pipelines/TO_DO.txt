@@ -1,8 +1,0 @@
-Créer docker-compose avec 4 services :
-    - collecte mode training
-    - collecte mode inference
-    - training
-    - predict
-
-pour la partie training faire un pipeline DVC pour lancer les services collecte + training
-pour la partie inference faire un script .sh pour lancer la collecte et la prédiction
