@@ -8,7 +8,8 @@ import mlflow
 from mlflow.models import infer_signature
 
 # Local modules
-from src.models import utils
+from src.training import utils
+# import utils
 
 # Define ENV variables
 # They will soon be defined directly in the Dockerfile
@@ -19,23 +20,27 @@ except:
 
 DATA_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data'))
 RANDOM_SEED = 42
-REPO_OWNER = 'EveAngelion'
-REPO_NAME = 'MLOps_Meteo_Australie'
-EXPERIMENT_NAME = "Weather_AUS_Models"
-TARGET_NAME = 'RainTomorrow'
-REGISTERED_NAME = 'XGBoost_WeatherAUS'
+MLFLOW_PARAMS = {
+    'repo_owner': 'EveAngelion',
+    'repo_name': 'MLOps_Meteo_Australie',
+    'experiment_name': "Weather_AUS_Models",
+    'registered_name': 'XGBoost_WeatherAUS',
+    'target_name': 'RainTomorrow'
+}
+
+# Config MLFlow
+dagshub.init(repo_owner=MLFLOW_PARAMS['repo_owner'],
+                repo_name=MLFLOW_PARAMS['repo_name'],
+                mlflow=True)
 
 logger = utils.get_logger()
 logger.debug(PROJECT_ROOT)
 
 def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target_col:str="RainTomorrow"):
     logger.info('Training model')
-
-    # Config MLFlow
-    dagshub.init(repo_owner=REPO_OWNER, repo_name=REPO_NAME, mlflow=True)
-    weather_experiment = mlflow.set_experiment(EXPERIMENT_NAME)
-    run_name = utils.get_next_run_name(EXPERIMENT_NAME)
-    registered_name = REGISTERED_NAME
+    weather_experiment = mlflow.set_experiment(MLFLOW_PARAMS['experiment_name'])
+    run_name = utils.get_next_run_name(MLFLOW_PARAMS['experiment_name'])
+    registered_name = MLFLOW_PARAMS['registered_name']
 
     train_df = pd.read_parquet(train_path)
     test_df = pd.read_parquet(test_path)
@@ -111,7 +116,7 @@ if __name__ == '__main__':
     train_path = osp.join(DATA_FOLDER, 'datasets', 'data_train.parquet')
     test_path = osp.join(DATA_FOLDER, 'datasets', 'data_test.parquet')
     valid_path = osp.join(DATA_FOLDER, 'datasets', 'data_valid.parquet')
-    train_xgboost_pipeline(train_path, test_path, valid_path, TARGET_NAME)
+    train_xgboost_pipeline(train_path, test_path, valid_path, MLFLOW_PARAMS['target_name'])
     
     logger.info('Finished !')
 

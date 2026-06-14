@@ -1,47 +1,23 @@
 services:
-  collect-training:
-    build:
-      context: .
-      dockerfile: src/data/Dockerfile
-    volumes:
-      - .:/app
-    working_dir: /app/src/pipelines
-    command: dvc repro dvc.yaml
-    env_file:
-      - .env
-    environment:
-      PYTHONPATH: /app
-
-  collect-inference:
-    build:
-      context: .
-      dockerfile: src/data/Dockerfile
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: python -m src.data.collect_inference --city ${CITY:-Sydney}
-    env_file:
-      - .env
-
   training:
     build:
       context: .
-      dockerfile: src/models/Dockerfile
+      dockerfile: src/training/Dockerfile
     volumes:
       - .:/app
     working_dir: /app
-    command: python -m src.models.training
+    command: bash src/pipelines/pipeline_training.sh
     env_file:
       - .env
 
   predict:
     build:
       context: .
-      dockerfile: src/models/Dockerfile
+      dockerfile: src/prediction/Dockerfile
     volumes:
       - .:/app
     working_dir: /app
-    command: python -m src.models.predict --city ${CITY:-Sydney}
+    command: python -m src.data.collect_inference --city ${CITY:-Sydney} && python -m src.models.predict --city ${CITY:-Sydney}
     env_file:
       - .env
 

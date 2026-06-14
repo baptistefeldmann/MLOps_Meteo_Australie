@@ -5,6 +5,19 @@ import pandas as pd
 import dagshub
 import mlflow
 
+def get_model():
+    logger.info('Load model')
+    dagshub.init(repo_owner='EveAngelion',
+                 repo_name='MLOps_Meteo_Australie',
+                 mlflow=True)
+    
+    model_name = f'models:/XGBoost_WeatherAUS@best_model'
+    model = mlflow.xgboost.load_model(model_name)
+
+    model_info = mlflow.models.get_model_info(model_name)
+    input_schema = model_info.signature.inputs.input_names()
+    return model, input_schema
+
 def get_logger():
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
@@ -32,33 +45,23 @@ except:
     PROJECT_ROOT = os.getcwd()
 
 DATA_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data'))
-REGISTERED_NAME = 'XGBoost_WeatherAUS'
 TARGET = 'RainTomorrow'
-REPO_OWNER = 'EveAngelion'
-REPO_NAME = 'MLOps_Meteo_Australie'
-ALIAS = 'best_model'
 THRESHOLD = 0.60
+MODEL, INPUT_SCHEMA = get_model()
 
 logger = get_logger()
 logger.debug(PROJECT_ROOT)
 
 def predict_RainTomorrow(inference_file:str, target_col:str='RainTomorrow'):
-    logger.info('Load Model + data')
-    # Config MLFlow
-    dagshub.init(repo_owner=REPO_OWNER, repo_name=REPO_NAME, mlflow=True)
-    model_name = f'models:/{REGISTERED_NAME}@{ALIAS}'
-    model = mlflow.xgboost.load_model(model_name)
-
-    model_info = mlflow.models.get_model_info(model_name)
-    input_schema = model_info.signature.inputs.input_names()
-   
+    logger.info('Load data')
+    
     with open(inference_file) as src:
         inference_df = pd.DataFrame([json.load(src)])
     
     inference_df.drop(columns=[target_col], inplace=True)
-    inference_df = inference_df[input_schema]
+    inference_df = inference_df[INPUT_SCHEMA]
     
-    proba = model.predict_proba(inference_df)[0, 1]
+    proba = MODEL.predict_proba(inference_df)[0, 1]
 
     prediction = "Pluie demain" if proba >= THRESHOLD else "Pas de pluie demain"
     confidence = abs(proba - 0.5) * 2
