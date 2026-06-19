@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 # conftest.py already mocked dagshub/mlflow/xgboost, but src.models.predict
 # also executes get_model() at module level — mock the whole module before import.
-sys.modules["src.models.predict"] = MagicMock(
+sys.modules["src.prediction.predict"] = MagicMock(
     predict_RainTomorrow=MagicMock(return_value={"prediction": "No", "probability": 0.3}),
     TARGET="RainTomorrow",
 )
