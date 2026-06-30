@@ -27,11 +27,18 @@ services:
       dockerfile: src/api/Dockerfile
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
     working_dir: /app
-    env_file:
-      - .env
+
+  nginx:
+    build:
+      context: .
+      dockerfile: src/api/Dockerfile.nginx
+    ports:
+      - "8000:80"
+    environment:
+      - API_KEY
+    depends_on:
+      - api
 
   interface:
     build:

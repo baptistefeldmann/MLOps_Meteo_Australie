@@ -62,6 +62,7 @@ jobs:
         run: |
           echo "DAGSHUB_USERNAME=ci" >> .env
           echo "DAGSHUB_TOKEN=ci" >> .env
+          echo "API_KEY=${{ secrets.API_KEY }}" >> .env
 
       - name: Start API container
         run: docker compose up -d api

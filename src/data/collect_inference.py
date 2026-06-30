@@ -46,9 +46,16 @@ def collect_inference_data(city:str):
     list_clean_report = []
     for yearmonth in month_list:
         logger.info(f'Process {city}:{yearmonth}')
-        raw_file = utils.download_raw_report(city, yearmonth, inference_folder, force_save=True)
+        try:
+            raw_file = utils.download_raw_report(city, yearmonth, inference_folder, force_save=True)
+        except Exception as e:
+            logger.warning(f'Could not download {city}:{yearmonth} — {e}, skipping')
+            continue
         processed_file = utils.cleaning_report(city, raw_file, inference_folder, force_save=True)
         list_clean_report.append(processed_file)
+
+    if not list_clean_report:
+        raise FileNotFoundError(f'No weather data available for {city} (tried: {month_list})')
     
     if len(list_clean_report) > 1:
         logger.info('Merge all reports')
