@@ -7,6 +7,7 @@ import mlflow
 
 def get_model():
     logger.info('Load model')
+    dagshub.auth.add_app_token(token=os.environ["DAGSHUB_USER_TOKEN"])
     dagshub.init(repo_owner='EveAngelion',
                  repo_name='MLOps_Meteo_Australie',
                  mlflow=True)

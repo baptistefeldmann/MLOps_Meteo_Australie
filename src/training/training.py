@@ -29,6 +29,7 @@ MLFLOW_PARAMS = {
 }
 
 # Config MLFlow
+dagshub.auth.add_app_token(token=os.environ["DAGSHUB_USER_TOKEN"])
 dagshub.init(repo_owner=MLFLOW_PARAMS['repo_owner'],
                 repo_name=MLFLOW_PARAMS['repo_name'],
                 mlflow=True)
