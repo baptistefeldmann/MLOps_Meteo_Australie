@@ -137,31 +137,68 @@ python src/models/predict.py --city Canberra
 
 ## 5. Run API service
 
-Start the FastAPI application.
+The FastAPI app (`api`) is not exposed directly — an `nginx` reverse proxy in front of it (`src/api/nginx.conf.template`) publishes port 8000 and enforces an API key on every route except `/health`. Requests must carry a matching `X-Api-Key` header or nginx returns `403` before the request ever reaches `api`.
+
+### Setup
+
+Set `API_KEY` in `.env` (any non-empty string for local testing):
 
 ```bash
-docker compose up -d api
+echo "API_KEY=local-test-key-123" >> .env
+```
+
+`api` also needs the rest of `.env` (`env_file: .env`) for `DAGSHUB_USER_TOKEN` — without it, model loading fails at startup with a DagsHub OAuth error.
+
+### Start API + proxy
+
+Both containers are required — starting `api` alone leaves nothing listening on port 8000:
+
+```bash
+docker compose up -d api nginx
 ```
 
 Check logs:
 
 ```bash
-docker compose logs -f api
+docker compose logs -f api nginx
 ```
 
-Test endpoints:
+### Test the API key behavior
 
+`/health` is intentionally unauthenticated (used for container healthchecks):
+
+```bash
+curl http://127.0.0.1:8000/health
+# {"status":"ok"}
+```
+
+Every other route requires the key — no key or a wrong key returns `403`:
+
+```bash
+curl -o /dev/null -w "%{http_code}\n" -X POST http://127.0.0.1:8000/predict \
+  -H "Content-Type: application/json" -d '{"city":"Sydney"}'
+# 403
+
+curl -o /dev/null -w "%{http_code}\n" -X POST http://127.0.0.1:8000/predict \
+  -H "Content-Type: application/json" -H "x-api-key: wrong-key" -d '{"city":"Sydney"}'
+# 403
+```
+
+With the correct key it reaches `api` normally:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/predict \
   -H "Content-Type: application/json" \
+  -H "x-api-key: local-test-key-123" \
   -d '{"city":"Sydney"}'
 ```
 
-Stop API:
+**Known gap:** if `API_KEY` is unset or empty when `nginx` starts, the generated check becomes `if ($http_x_api_key != "") return 403;` — which lets *unauthenticated* requests through instead of blocking everything. Always confirm `API_KEY` is set in `.env` before relying on this in any shared environment; don't assume a missing key fails closed.
+
+Stop everything:
 
 ```bash
-docker compose stop api
+docker compose stop api nginx
 ```
 
 ---
