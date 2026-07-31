@@ -1,0 +1,3 @@
+FROM nginx:alpine
+COPY src/api/nginx.conf.template /nginx.conf.template
+CMD ["/bin/sh", "-c", "envsubst '${API_KEY}' < /nginx.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

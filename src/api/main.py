@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from src.data.collect_inference import collect_inference_data
-from src.models.predict import predict_RainTomorrow, TARGET
+from src.prediction.predict import predict_RainTomorrow, TARGET
 
 app = FastAPI(title="Weather MLOps API")
 

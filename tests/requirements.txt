@@ -1,0 +1,7 @@
+pytest
+pandas
+numpy
+pyarrow
+fastapi
+httpx
+requests
