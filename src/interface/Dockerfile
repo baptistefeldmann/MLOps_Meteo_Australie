@@ -10,5 +10,6 @@ RUN uv pip install --system -r /tmp/requirements.txt
 COPY . /app
 
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
 
 CMD ["streamlit", "run", "src/interface/app.py", "--server.address=0.0.0.0", "--server.port=8501"]
