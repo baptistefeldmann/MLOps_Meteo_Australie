@@ -260,6 +260,62 @@ curl "http://localhost:8000/predict?city=Sydney"
 
 ---
 
+## 7. Airflow orchestration
+
+Runs the two DAGs in `dags/`: `data_pipeline` (dvc repro → dvc push → git commit/push → triggers training) and `model_training` (train → restart api). Both use `DockerOperator`, so tasks run in their own container rather than inside the Airflow containers.
+
+### Setup
+
+```bash
+cp .env.example .env
+# fill in DAGSHUB_USER_TOKEN, GITHUB_TOKEN, HOST_PROJECT_PATH (absolute path to this repo on YOUR machine)
+```
+
+### Which image do the DAG tasks run?
+
+Both DAGs read `TRAINING_IMAGE` from `.env` and default to `ghcr.io/eveangelion/mlops-meteo-australie/training:latest` (built by [.github/workflows/build-push-images.yml](.github/workflows/build-push-images.yml) on push to `main`). **That GHCR package is private** — pulling it without `docker login ghcr.io` fails with `403 Forbidden`.
+
+For local testing, build the training image yourself first and point `TRAINING_IMAGE` at it in `.env`:
+
+```bash
+docker build -t mlops_meteo_australie-training:latest -f src/training/Dockerfile .
+# in .env:
+# TRAINING_IMAGE=mlops_meteo_australie-training:latest
+```
+
+Only switch to the registry image once you've verified the DAGs work locally (and either the package is made public or you've run `docker login ghcr.io`).
+
+### Start Airflow
+
+```bash
+docker compose up airflow-init                                      # one-off: db migrate + creates admin/admin
+docker compose up -d postgres airflow-webserver airflow-scheduler
+```
+
+Open [http://localhost:8080](http://localhost:8080) (`admin` / `admin`). Check both DAGs loaded cleanly:
+
+```bash
+docker compose exec airflow-scheduler airflow dags list-import-errors
+```
+
+### Test a single task without side effects
+
+```bash
+docker compose exec airflow-scheduler airflow tasks test data_pipeline raw_processed 2026-07-23
+```
+
+### Trigger a full run
+
+```bash
+docker compose exec airflow-scheduler airflow dags trigger data_pipeline
+```
+
+Note: a full `data_pipeline` run really pushes to DagsHub (`dvc_push`) and commits/pushes `dvc.lock` to GitHub (`git_commit_push`) using the credentials in `.env` — it is not a dry run.
+
+**Before triggering `model_training` (directly or via `data_pipeline`): make sure `api` is already running (`docker compose up -d api`).** Its last task, `restart_api`, runs `docker restart mlops_meteo_australie-api-1` — if that container doesn't exist yet, the task fails.
+
+---
+
 ## Stop all services
 
 ```bash
