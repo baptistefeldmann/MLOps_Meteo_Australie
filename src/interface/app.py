@@ -4,6 +4,7 @@ import json, re
 import folium
 import streamlit as st
 from streamlit_folium import st_folium
+import requests
 
 # Define ENV variables
 # They will soon be defined directly in the Dockerfile
@@ -16,6 +17,22 @@ STATIONS_FILE = osp.join(PROJECT_ROOT,'..','utils','stations_infos.json')
 
 def camelCase2Space(string):
     return re.sub(r'([a-z])([A-Z])', r'\1 \2', string)
+
+def request_predict(city):
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": os.environ['API_KEY']
+    }
+    payload = {'city':city}
+
+    response = requests.post(
+        os.environ('API_PREDICTION_URL'),
+        json=payload,
+        headers=headers,
+        timeout=15
+        )
+    response.raise_for_status()
+    return response.json()
 
 # Configuration de la page en mode "large" pour bien profiter de la carte
 st.set_page_config(page_title="Cartographie POI", layout="wide")
@@ -44,9 +61,8 @@ with st.sidebar:
     
     # Ton futur bouton météo (prêt pour la suite)
     st.subheader("🌤️ Prévisions")
-    if st.button("Consulter la météo du lendemain", use_container_width=True):
-        st.info("Simulation : La requête API météo sera implémentée ici plus tard ! 😉")
-
+    weather_button_clicked = st.button("Consulter la météo du lendemain", use_container_width=True)
+    # st.info("Simulation : La requête API météo sera implémentée ici plus tard ! 😉")
 
 # --- ZONE CENTRALE ---
 col_carte, col_details = st.columns([3, 1])
@@ -94,6 +110,19 @@ if point_selectionne_liste != "Aucun":
             key_final = key
             break
 
+#--- Prédiction Météo
+if weather_button_clicked:
+    if key_final:
+        with st.spinner(f'Prédiction en cours pour {camelCase2Space(key_final)}...'):
+            result = request_predict(key_final)
+
+        st.session_state["last_pred"] = {
+            "station": key_final,
+            "resultat": result,
+        }
+    else:
+        st.session_state["last_pred"] = None
+        st.sidebar.warning("Veuillez d'abord sélectionner un point d'intérêt (carte ou liste).")
 
 # --- AFFICHAGE DES DÉTAILS ---
 with col_details:
@@ -106,3 +135,20 @@ with col_details:
         st.markdown(f"**Longitude :** `{pois[key_final]['latlong'][1]}`")
     else:
         st.info("Veuillez sélectionner un point d'intérêt sur la carte ou dans la liste.")
+
+    weather_prediction = st.session_state.get('last_pred')
+    if weather_prediction and weather_prediction.get('station') == key_final:
+        st.divider()
+        st.subheader("🌧️ Prévision du lendemain")
+        resultat = weather_prediction["resultat"]
+        if resultat['status']=='success':
+            st.success("Prédiction reçue !")
+
+            if resultat['result']['prediction'] == 'Pas de pluie demain':
+                st.markdown(f"### ☀️ Pas de pluie prévue demain pour {camelCase2Space(key_final)}")
+            else:
+                st.markdown(f"### 🌧️ Pluie prévue demain pour {camelCase2Space(key_final)}")
+
+            st.metric("Probabilité de pluie", f"{resultat['result']['rain_probability'] * 100:.1f} %")
+        else:
+            st.error(f"Erreur lors de la requête à l'API: {resultat}")
