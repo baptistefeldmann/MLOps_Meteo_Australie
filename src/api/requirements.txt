@@ -12,3 +12,6 @@ mlflow
 dagshub
 
 requests
+
+prometheus-client
+prometheus-fastapi-instrumentator

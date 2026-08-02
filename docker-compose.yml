@@ -71,7 +71,6 @@ services:
     env_file:
       - .env
 
-
   training:
     build:
       context: .
@@ -127,6 +126,31 @@ services:
     env_file:
       - .env
 
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+
+  grafana:
+    image: grafana/grafana:latest
+    env_file:
+      - .env
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      
 volumes:
   postgres_db:
+  prometheus_data:
+  grafana_data:
 
