@@ -61,6 +61,12 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - /var/run/docker.sock:/var/run/docker.sock
+    # GID of the host group that owns /var/run/docker.sock (docker group).
+    # Grants the in-container `airflow` user access to the Docker socket so
+    # the DockerOperator tasks can spawn containers. Find yours with:
+    #   stat -c '%g' /var/run/docker.sock
+    group_add:
+      - "${DOCKER_GID:-999}"
     command: airflow scheduler
     env_file:
       - .env

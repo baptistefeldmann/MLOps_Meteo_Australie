@@ -64,6 +64,7 @@ with DAG(
     git_commit_push = docker_op(
         task_id="git_commit_push",
         command="""bash -c "
+            git config --global --add safe.directory /app &&
             git config user.email airflow@mlops.com &&
             git config user.name Airflow &&
             git remote set-url origin https://EveAngelion:${GITHUB_TOKEN}@github.com/EveAngelion/MLOps_Meteo_Australie.git &&
