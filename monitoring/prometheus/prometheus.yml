@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Ton API FastAPI
+  - job_name: 'weather-api'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['api:8000']
+
+  # (optionnel) Prometheus qui se surveille lui-même
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
