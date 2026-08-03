@@ -93,6 +93,17 @@ services:
     env_file:
       - .env
 
+  drift:
+    build:
+      context: .
+      dockerfile: src/training/Dockerfile
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: python -m src.monitoring.drift_report
+    env_file:
+      - .env
+
   api:
     build:
       context: .

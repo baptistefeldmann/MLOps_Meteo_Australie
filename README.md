@@ -231,6 +231,23 @@ docker compose stop interface
 
 ---
 
+## 7. Monitoring Promotheus / Grafana
+
+Start scan + create report
+
+```bash
+docker compose run --rm drift
+```
+---
+
+## 8. Drift Monitoring Evidently
+
+Open in browser:
+
+```text
+http://localhost:3000
+```
+
 ## Full workflow
 
 ### Initial model training

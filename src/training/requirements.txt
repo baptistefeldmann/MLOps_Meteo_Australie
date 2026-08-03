@@ -7,3 +7,7 @@ numpy
 dvc[s3]
 pyarrow
 tqdm
+
+# Data drift monitoring. Pin sur la famille 0.4.x : API stable Report/DataDriftPreset
+# (l'API d'Evidently a beaucoup changé en 0.6+/v2).
+evidently>=0.4,<0.5
