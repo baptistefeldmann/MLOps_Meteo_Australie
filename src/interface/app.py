@@ -1,5 +1,6 @@
 import os
 import os.path as osp
+from dotenv import load_dotenv
 import json, re
 import folium
 import streamlit as st
@@ -15,6 +16,8 @@ except:
 
 STATIONS_FILE = osp.join(PROJECT_ROOT,'..','utils','stations_infos.json')
 
+load_dotenv()
+
 def camelCase2Space(string):
     return re.sub(r'([a-z])([A-Z])', r'\1 \2', string)
 
@@ -26,7 +29,7 @@ def request_predict(city):
     payload = {'city':city}
 
     response = requests.post(
-        os.environ('API_PREDICTION_URL'),
+        os.getenv('API_PREDICTION_URL'),
         json=payload,
         headers=headers,
         timeout=15
