@@ -155,6 +155,7 @@ services:
       - .env
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
     ports:
       - "3000:3000"
     depends_on:

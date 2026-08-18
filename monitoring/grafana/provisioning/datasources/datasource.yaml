@@ -1,0 +1,20 @@
+apiVersion: 1
+
+# Supprime toute datasource "prometheus" preexistante (ex. creee a la main
+# avec un UID aleatoire) pour eviter le conflit de nom au provisioning.
+deleteDatasources:
+  - name: prometheus
+    orgId: 1
+
+# Datasource Prometheus provisionnee avec un UID FIXE (`prometheus`).
+# But : que les regles d'alerte (rules.yaml) puissent la referencer de facon
+# reproductible sur n'importe quelle machine (sinon Grafana genere un UID
+# aleatoire different a chaque install).
+datasources:
+  - name: prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
