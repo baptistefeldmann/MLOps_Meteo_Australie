@@ -1,0 +1,14 @@
+apiVersion: 1
+
+# Point de contact Slack. L'URL du webhook n'est PAS ecrite ici :
+# elle est lue depuis la variable d'environnement WEBHOOK_SLACK_URL
+# (injectee dans le conteneur grafana via env_file: .env dans docker-compose).
+contactPoints:
+  - orgId: 1
+    name: slack-mlops
+    receivers:
+      - uid: slack_mlops_receiver
+        type: slack
+        settings:
+          url: $__env{WEBHOOK_SLACK_URL}
+        disableResolveMessage: false

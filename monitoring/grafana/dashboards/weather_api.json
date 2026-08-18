@@ -32,7 +32,7 @@
       "id": 9,
       "type": "stat",
       "title": "API Status",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
       "fieldConfig": {
         "defaults": {
@@ -57,14 +57,14 @@
         "graphMode": "none", "justifyMode": "center"
       },
       "targets": [
-        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "up{job=\"weather-api\"}", "refId": "A" }
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "up{job=\"weather-api\"}", "refId": "A" }
       ]
     },
     {
       "id": 1,
       "type": "stat",
       "title": "Prédictions (total)",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 4, "w": 5, "x": 4, "y": 0 },
       "fieldConfig": {
         "defaults": {
@@ -81,14 +81,14 @@
         "graphMode": "area", "justifyMode": "auto"
       },
       "targets": [
-        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "sum(predictions_total)", "refId": "A" }
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "sum(predictions_total)", "refId": "A" }
       ]
     },
     {
       "id": 2,
       "type": "stat",
       "title": "Taux d'échec",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 4, "w": 5, "x": 9, "y": 0 },
       "fieldConfig": {
         "defaults": {
@@ -105,14 +105,14 @@
         "graphMode": "area", "justifyMode": "auto"
       },
       "targets": [
-        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "sum(rate(http_requests_total{status=~\"4xx|5xx\"}[5m])) / clamp_min(sum(rate(http_requests_total[5m])), 1e-9)", "refId": "A" }
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "sum(rate(http_requests_total{status=~\"4xx|5xx\"}[5m])) / clamp_min(sum(rate(http_requests_total[5m])), 1e-9)", "refId": "A" }
       ]
     },
     {
       "id": 3,
       "type": "stat",
       "title": "Requêtes / s",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 4, "w": 5, "x": 14, "y": 0 },
       "fieldConfig": {
         "defaults": {
@@ -129,14 +129,14 @@
         "graphMode": "area", "justifyMode": "auto"
       },
       "targets": [
-        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "sum(rate(http_requests_total[5m]))", "refId": "A" }
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "sum(rate(http_requests_total[5m]))", "refId": "A" }
       ]
     },
     {
       "id": 4,
       "type": "stat",
       "title": "Confidence moyenne",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 4, "w": 5, "x": 19, "y": 0 },
       "fieldConfig": {
         "defaults": {
@@ -155,14 +155,14 @@
         "graphMode": "area", "justifyMode": "auto"
       },
       "targets": [
-        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "sum(rate(prediction_confidence_sum[5m])) / clamp_min(sum(rate(prediction_confidence_count[5m])), 1e-9)", "refId": "A" }
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "sum(rate(prediction_confidence_sum[5m])) / clamp_min(sum(rate(prediction_confidence_count[5m])), 1e-9)", "refId": "A" }
       ]
     },
     {
       "id": 5,
       "type": "timeseries",
       "title": "Requêtes par statut",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
       "fieldConfig": {
         "defaults": {
@@ -176,14 +176,14 @@
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
       "targets": [
-        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "sum by (status) (rate(http_requests_total[5m]))", "legendFormat": "{{status}}", "refId": "A" }
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "sum by (status) (rate(http_requests_total[5m]))", "legendFormat": "{{status}}", "refId": "A" }
       ]
     },
     {
       "id": 6,
       "type": "timeseries",
       "title": "Prédictions par issue (pluie / pas pluie)",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
       "fieldConfig": {
         "defaults": {
@@ -197,14 +197,14 @@
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
       "targets": [
-        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "sum by (outcome) (increase(predictions_total[5m]))", "legendFormat": "{{outcome}}", "refId": "A" }
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "sum by (outcome) (increase(predictions_total[5m]))", "legendFormat": "{{outcome}}", "refId": "A" }
       ]
     },
     {
       "id": 7,
       "type": "timeseries",
       "title": "Confidence des prédictions (moyenne & p95)",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
       "fieldConfig": {
         "defaults": {
@@ -220,15 +220,15 @@
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
       "targets": [
-        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "sum(rate(prediction_confidence_sum[5m])) / clamp_min(sum(rate(prediction_confidence_count[5m])), 1e-9)", "legendFormat": "moyenne", "refId": "A" },
-        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "histogram_quantile(0.95, sum by (le) (rate(prediction_confidence_bucket[5m])))", "legendFormat": "p95", "refId": "B" }
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "sum(rate(prediction_confidence_sum[5m])) / clamp_min(sum(rate(prediction_confidence_count[5m])), 1e-9)", "legendFormat": "moyenne", "refId": "A" },
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "histogram_quantile(0.95, sum by (le) (rate(prediction_confidence_bucket[5m])))", "legendFormat": "p95", "refId": "B" }
       ]
     },
     {
       "id": 8,
       "type": "timeseries",
       "title": "Latence API p95",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
       "fieldConfig": {
         "defaults": {
@@ -242,7 +242,7 @@
         "tooltip": { "mode": "multi", "sort": "desc" }
       },
       "targets": [
-        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))", "legendFormat": "p95", "refId": "A" }
+        { "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))", "legendFormat": "p95", "refId": "A" }
       ]
     }
   ]
