@@ -19,6 +19,8 @@ except:
     PROJECT_ROOT = os.getcwd()
 
 DATA_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','data'))
+REPORTS_FOLDER = osp.abspath(osp.join(PROJECT_ROOT,'..','..','reports'))
+PROMOTION_STATUS_FILE = osp.join(REPORTS_FOLDER, 'promotion_status.json')
 RANDOM_SEED = 42
 MLFLOW_PARAMS = {
     'repo_owner': 'EveAngelion',
@@ -91,12 +93,20 @@ def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target
         )
 
         time.sleep(2)
-        utils.models_comparison(
+        promoted = utils.models_comparison(
             registered_name,
             current_run_id=run.info.run_id,
             metrics=metrics
         )
-    
+
+    # Marqueur de promotion lu par la tache Airflow "update_reference".
+    # (Option 2 : la reference de drift n'est mise a jour que si un nouveau
+    #  best_model a ete promu lors de cet entrainement.)
+    os.makedirs(REPORTS_FOLDER, exist_ok=True)
+    with open(PROMOTION_STATUS_FILE, "w") as f:
+        json.dump({"promoted": bool(promoted), "run_name": run_name}, f, indent=2)
+    logger.info(f"Promotion: {promoted} (marqueur -> {PROMOTION_STATUS_FILE})")
+
     logger.info('Completed !')
 
 ##############

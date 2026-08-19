@@ -17,6 +17,22 @@ BASE_ENV = {
 
 PROJECT_MOUNT = Mount(source=HOST_PROJECT_PATH, target="/app", type="bind")
 
+
+def docker_op(task_id, command, extra_env=None):
+    env = {**BASE_ENV, **(extra_env or {})}
+    return DockerOperator(
+        task_id=task_id,
+        image=TRAINING_IMAGE,
+        command=command,
+        mounts=[PROJECT_MOUNT],
+        environment=env,
+        docker_url="unix://var/run/docker.sock",
+        working_dir="/app",
+        auto_remove="success",
+        retries=1,
+    )
+
+
 with DAG(
     dag_id="model_training",
     schedule=None,  # triggered by data_pipeline DAG
@@ -25,16 +41,24 @@ with DAG(
     tags=["training"],
 ) as dag:
 
-    train_model = DockerOperator(
+    train_model = docker_op(
         task_id="train_model",
-        image=TRAINING_IMAGE,
         command="python -m src.training.training",
-        mounts=[PROJECT_MOUNT],
-        environment=BASE_ENV,
-        docker_url="unix://var/run/docker.sock",
-        working_dir="/app",
-        auto_remove="success",
-        retries=1,
+    )
+
+    # Calcul du drift : nouveau dataset (data_train) vs reference
+    # (= donnees d'entrainement du modele actuellement deploye).
+    drift_report = docker_op(
+        task_id="drift_report",
+        command="python -m src.monitoring.drift_report",
+    )
+
+    # Option 2 stricte : on ne met a jour + versionne (DVC) la reference que si
+    # un nouveau best_model a ete promu (marqueur ecrit par training.py).
+    update_reference = docker_op(
+        task_id="update_reference",
+        command="bash src/pipelines/update_reference.sh",
+        extra_env={"GITHUB_TOKEN": os.environ.get("GITHUB_TOKEN")},
     )
 
     restart_api = BashOperator(
@@ -42,4 +66,7 @@ with DAG(
         bash_command="docker restart mlops_meteo_australie-api-1",
     )
 
+    # Le service repart avec le nouveau modele des la fin de l'entrainement.
     train_model >> restart_api
+    # Branche monitoring : drift, puis mise a jour conditionnelle de la reference.
+    train_model >> drift_report >> update_reference
