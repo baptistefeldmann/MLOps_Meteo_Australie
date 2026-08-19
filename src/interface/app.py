@@ -6,6 +6,11 @@ import folium
 import streamlit as st
 from streamlit_folium import st_folium
 import requests
+import glob
+import yaml
+from yaml.loader import SafeLoader
+import streamlit_authenticator as stauth
+import streamlit.components.v1 as components
 
 # Define ENV variables
 # They will soon be defined directly in the Dockerfile
@@ -15,6 +20,9 @@ except:
     PROJECT_ROOT = os.getcwd()
 
 STATIONS_FILE = osp.join(PROJECT_ROOT,'..','utils','stations_infos.json')
+CONFIG_FILE = osp.join(PROJECT_ROOT, 'config.yaml')
+DRIFT_DIR = osp.abspath(osp.join(PROJECT_ROOT, '..', '..', 'reports', 'drift'))
+GRAFANA_URL = os.getenv('GRAFANA_URL', 'http://localhost:3000')
 
 load_dotenv()
 
@@ -40,8 +48,60 @@ def request_predict(city):
 # Configuration de la page en mode "large" pour bien profiter de la carte
 st.set_page_config(page_title="Cartographie POI", layout="wide")
 
+# ---------------- Authentification (login + rôles) ----------------
+with open(CONFIG_FILE) as _f:
+    _config = yaml.load(_f, Loader=SafeLoader)
+
+authenticator = stauth.Authenticate(
+    _config["credentials"],
+    _config["cookie"]["name"],
+    _config["cookie"]["key"],
+    _config["cookie"]["expiry_days"],
+    auto_hash=False,   # les mots de passe sont déjà hachés dans config.yaml
+)
+authenticator.login(location="main")
+
+_auth_status = st.session_state.get("authentication_status")
+if _auth_status is False:
+    st.error("Nom d'utilisateur ou mot de passe incorrect.")
+    st.stop()
+if _auth_status is None:
+    st.info("Veuillez vous connecter pour accéder à l'interface.")
+    st.stop()
+
+# --- Utilisateur authentifié ---
+username = st.session_state.get("username")
+name = st.session_state.get("name")
+role = _config["credentials"]["usernames"].get(username, {}).get("role", "user")
+
+with st.sidebar:
+    authenticator.logout("Déconnexion", "sidebar")
+    st.caption(f"Connecté : {name} · rôle : **{role}**")
+    st.divider()
+# ------------------------------------------------------------------
+
 st.title("📍 Cartographie et Sélection de Points d'Intérêt")
 st.write("Visualisez vos points et sélectionnez-les pour interagir.")
+
+# --- Espace réservé aux administrateurs ---
+if role == "admin":
+    with st.expander("🔧 Espace admin — monitoring & rapports de drift", expanded=False):
+        col_admin_a, col_admin_b = st.columns(2)
+        with col_admin_a:
+            st.markdown("**Monitoring**")
+            st.link_button("📊 Ouvrir Grafana", GRAFANA_URL, use_container_width=True)
+        with col_admin_b:
+            st.markdown("**Rapports de drift (Evidently)**")
+            _drift_reports = sorted(glob.glob(osp.join(DRIFT_DIR, "*.html")), reverse=True)
+            if _drift_reports:
+                _choix = st.selectbox("Choisir un rapport", [osp.basename(r) for r in _drift_reports])
+                _chemin = osp.join(DRIFT_DIR, _choix)
+                with open(_chemin, "r", encoding="utf-8") as _rf:
+                    _rapport_html = _rf.read()
+                st.download_button("⬇️ Télécharger", _rapport_html, file_name=_choix, mime="text/html")
+                components.html(_rapport_html, height=600, scrolling=True)
+            else:
+                st.info("Aucun rapport de drift pour l'instant (lance `docker compose run --rm drift`).")
 
 # 1. Chargement des données JSON
 @st.cache_data

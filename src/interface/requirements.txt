@@ -2,3 +2,7 @@ folium
 streamlit
 streamlit-folium
 python-dotenv
+
+# Authentification (login + rôles). API figée : 0.3.x (login via session_state).
+streamlit-authenticator==0.3.3
+pyyaml

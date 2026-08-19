@@ -1,0 +1,22 @@
+# Utilisateurs de l'interface Streamlit (auth + rôles).
+# Les mots de passe sont hachés (bcrypt) — jamais en clair.
+# NB : le username tapé est mis en minuscules -> les clés ici sont en minuscules.
+#   - malotru / Bachibouzouk   (rôle user)
+#   - admin   / mouleagaufres  (rôle admin)
+credentials:
+  usernames:
+    malotru:
+      email: malotru@exemple.com
+      name: Malotru
+      password: $2b$12$OYHi2W33RcFveK0GTLhiW.GMcv/8HFEhqQudDwF.YtoBmdLdXCjFy
+      role: user
+    admin:
+      email: admin@exemple.com
+      name: Administrateur
+      password: $2b$12$XGuwpXkygXUOjWitsqeVxu4PJQwwNBVjiZhOMXGzmjvfkUyuKiHVa
+      role: admin
+
+cookie:
+  name: meteo_auth
+  key: 5fdddde0a2d94a1d18922db6f5ca56de
+  expiry_days: 7
