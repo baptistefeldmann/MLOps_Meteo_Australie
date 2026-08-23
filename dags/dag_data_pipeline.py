@@ -56,6 +56,14 @@ with DAG(
         command='bash -c "cd src/pipelines && dvc repro datasets"',
     )
 
+    # Drift calcule a chaque nouvelle collecte : nouveau dataset vs reference
+    # (= donnees d'entrainement du modele actuellement deploye).
+    # Ecrit reports/drift_status.json, lu ensuite par le DAG model_training.
+    drift_report = docker_op(
+        task_id="drift_report",
+        command="python -m src.monitoring.drift_report",
+    )
+
     dvc_push = docker_op(
         task_id="dvc_push",
         command="dvc push",
@@ -79,4 +87,4 @@ with DAG(
         trigger_dag_id="model_training",
     )
 
-    raw_processed >> features >> datasets >> dvc_push >> git_commit_push >> trigger_training
+    raw_processed >> features >> datasets >> drift_report >> dvc_push >> git_commit_push >> trigger_training

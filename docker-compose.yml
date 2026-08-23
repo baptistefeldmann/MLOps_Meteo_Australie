@@ -94,9 +94,10 @@ services:
       - .env
 
   drift:
-    build:
-      context: .
-      dockerfile: src/training/Dockerfile
+    # Reutilise l'image du service `training` (meme Dockerfile) : evite de
+    # reconstruire ~3 Go et garantit des versions de librairies identiques.
+    # Prerequis sur un clone neuf : docker compose build training
+    image: mlops_meteo_australie-training
     volumes:
       - .:/app
     working_dir: /app
@@ -136,6 +137,21 @@ services:
     working_dir: /app
     env_file:
       - .env
+
+  # UI Evidently : sert les snapshots de drift ecrits par src/monitoring/drift_report.py
+  # dans reports/evidently_workspace. Port interne 8000 -> 8888 sur l'hote
+  # (8000 est deja pris par nginx).
+  evidently-ui:
+    # Reutilise l'image du service `training` (meme Dockerfile) : evite de
+    # reconstruire ~3 Go et garantit des versions de librairies identiques.
+    # Prerequis sur un clone neuf : docker compose build training
+    image: mlops_meteo_australie-training
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: evidently ui --host 0.0.0.0 --port 8000 --workspace reports/evidently_workspace
+    ports:
+      - "8888:8000"
 
   prometheus:
     image: prom/prometheus:latest

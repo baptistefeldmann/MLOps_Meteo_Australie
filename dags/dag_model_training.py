@@ -46,15 +46,10 @@ with DAG(
         command="python -m src.training.training",
     )
 
-    # Calcul du drift : nouveau dataset (data_train) vs reference
-    # (= donnees d'entrainement du modele actuellement deploye).
-    drift_report = docker_op(
-        task_id="drift_report",
-        command="python -m src.monitoring.drift_report",
-    )
-
-    # Option 2 stricte : on ne met a jour + versionne (DVC) la reference que si
-    # un nouveau best_model a ete promu (marqueur ecrit par training.py).
+    # La reference n'est mise a jour + versionnee (DVC) que si les DEUX
+    # conditions sont reunies :
+    #   - un nouveau best_model a ete promu   (reports/promotion_status.json, ecrit par training.py)
+    #   - aucun drift n'a ete detecte         (reports/drift_status.json, ecrit par le DAG data_pipeline)
     update_reference = docker_op(
         task_id="update_reference",
         command="bash src/pipelines/update_reference.sh",
@@ -68,5 +63,5 @@ with DAG(
 
     # Le service repart avec le nouveau modele des la fin de l'entrainement.
     train_model >> restart_api
-    # Branche monitoring : drift, puis mise a jour conditionnelle de la reference.
-    train_model >> drift_report >> update_reference
+    # Branche monitoring : mise a jour conditionnelle de la reference de drift.
+    train_model >> update_reference

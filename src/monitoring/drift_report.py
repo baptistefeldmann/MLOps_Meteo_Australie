@@ -51,6 +51,14 @@ REPORTS_FOLDER = osp.abspath(osp.join(PROJECT_ROOT, "..", "..", "reports", "drif
 CURRENT_PATH = osp.join(DATA_FOLDER, "datasets", "data_train.parquet")
 REFERENCE_PATH = osp.join(DATA_FOLDER, "reference", "data_reference.parquet")
 
+# Marqueur lu par la tache Airflow "update_reference" (DAG model_training) :
+# la reference n'est mise a jour que si AUCUN drift n'a ete detecte ici.
+DRIFT_STATUS_FILE = osp.abspath(osp.join(PROJECT_ROOT, "..", "..", "reports", "drift_status.json"))
+
+# Workspace servi par le service `evidently-ui` (docker compose).
+WORKSPACE_PATH = osp.abspath(osp.join(PROJECT_ROOT, "..", "..", "reports", "evidently_workspace"))
+PROJECT_NAME = "Weather AUS - Data Drift"
+
 TARGET = "RainTomorrow"
 
 # MLflow / DagsHub (memes coordonnees que training.py)
@@ -127,6 +135,35 @@ def log_to_mlflow(summary, html_path):
         mlflow.log_artifact(html_path, artifact_path="drift_report")
     logger.info("Synthese de drift logguee dans MLflow")
 
+def write_drift_status(summary, computed=True):
+    """Ecrit le marqueur de drift consomme par la tache Airflow update_reference."""
+    os.makedirs(osp.dirname(DRIFT_STATUS_FILE), exist_ok=True)
+    payload = {
+        "computed": bool(computed),
+        "dataset_drift": int(summary.get("dataset_drift", 0)),
+        "share_of_drifted_columns": float(summary.get("share_of_drifted_columns", 0.0)),
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+    }
+    with open(DRIFT_STATUS_FILE, "w") as dst:
+        json.dump(payload, dst, indent=2)
+    logger.info(f"Statut de drift ecrit : {DRIFT_STATUS_FILE} -> {json.dumps(payload)}")
+
+
+def add_to_workspace(report):
+    """Ajoute le rapport au workspace Evidently (servi par le service evidently-ui)."""
+    from evidently.ui.workspace import Workspace
+
+    os.makedirs(WORKSPACE_PATH, exist_ok=True)
+    workspace = Workspace.create(WORKSPACE_PATH)
+    projects = workspace.search_project(PROJECT_NAME)
+    project = projects[0] if projects else workspace.create_project(
+        PROJECT_NAME,
+        description="Derive des donnees meteo : dataset courant vs reference du modele deploye.",
+    )
+    workspace.add_report(project.id, report)
+    logger.info(f"Rapport ajoute au workspace Evidently : {WORKSPACE_PATH}")
+
+
 def generate_report(reference_path=REFERENCE_PATH, current_path=CURRENT_PATH):
     reference_df = pd.read_parquet(reference_path)
     current_df = pd.read_parquet(current_path)
@@ -148,6 +185,12 @@ def generate_report(reference_path=REFERENCE_PATH, current_path=CURRENT_PATH):
     html_path = osp.join(REPORTS_FOLDER, f"drift_{stamp}.html")
     report.save_html(html_path)
     logger.info(f"Rapport HTML : {html_path}")
+
+    # Snapshot pour l'UI Evidently (ne doit jamais faire echouer le rapport)
+    try:
+        add_to_workspace(report)
+    except Exception as exc:
+        logger.warning(f"Ajout au workspace Evidently ignore ({exc})")
 
     summary = extract_drift_summary(report)
     logger.info(f"Synthese drift : {json.dumps(summary)}")
@@ -186,10 +229,12 @@ def main():
     if not osp.exists(args.reference):
         logger.warning("No Reference found : Initialization from current dataset")
         update_reference(current_path=args.current, reference_path=args.reference)
+        write_drift_status({}, computed=False)
         logger.info("Initialization succes, no drift computed for first run")
         return
 
     html_path, summary = generate_report(reference_path=args.reference, current_path=args.current)
+    write_drift_status(summary)
 
     if not args.no_mlflow:
         try:

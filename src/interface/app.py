@@ -23,6 +23,7 @@ STATIONS_FILE = osp.join(PROJECT_ROOT,'..','utils','stations_infos.json')
 CONFIG_FILE = osp.join(PROJECT_ROOT, 'config.yaml')
 DRIFT_DIR = osp.abspath(osp.join(PROJECT_ROOT, '..', '..', 'reports', 'drift'))
 GRAFANA_URL = os.getenv('GRAFANA_URL', 'http://localhost:3000')
+EVIDENTLY_URL = os.getenv('EVIDENTLY_URL', 'http://localhost:8888')
 
 load_dotenv()
 
@@ -90,6 +91,7 @@ if role == "admin":
         with col_admin_a:
             st.markdown("**Monitoring**")
             st.link_button("📊 Ouvrir Grafana", GRAFANA_URL, use_container_width=True)
+            st.link_button("📈 Ouvrir Evidently", EVIDENTLY_URL, use_container_width=True)
         with col_admin_b:
             st.markdown("**Rapports de drift (Evidently)**")
             _drift_reports = sorted(glob.glob(osp.join(DRIFT_DIR, "*.html")), reverse=True)
