@@ -3,3 +3,6 @@
 __pycache__/
 data/inference/*
 reports/promotion_status.json
+reports/drift/*
+reports/drift_status.json
+reports/evidently_workspace/
