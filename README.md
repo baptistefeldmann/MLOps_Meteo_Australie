@@ -1,340 +1,325 @@
-# MLOps_Meteo_Australie
-Projet MLOps de prediction de la meteo en Australie
+# 🌧️ MLOps Météo Australie
 
-Présentation fonctionnement :
-- Collecte de données (dossier src/data) :
-    . collect_raw.py : Collecte les données brutes pour toutes les stations sur une période de 2 mois (mois actuel + mois précédent).
-    Puis nettoie les fichiers CSV pour les enregistrer dans le dossier data/processed.
+> Prédire s'il pleuvra demain sur chaque station météo australienne — et faire tourner
+> le tout comme un vrai système de production : collecte automatisée, entraînement
+> reproductible, déploiement, supervision et détection de dérive.
 
-    . create_features.py : Utilise les CSV du dossier data/processed pour calculer les features pour le modèle
-    (direction du vent en degré, moyenne des températures sur 3 jours, etc..)
-    puis enregistre les données dans data/features dans des fichiers .parquet par station
+Ce dépôt n'est pas qu'un modèle de machine learning : c'est une **chaîne MLOps complète**,
+conteneurisée de bout en bout, où chaque brique (données, entraînement, service,
+orchestration, monitoring) est isolée et remplaçable.
 
-    . create_datasets.py : A partir des fichiers .parquet par station, créé les datasets d'entrainements (train/test/valid)
-    selon les ratios suivant (défaut) : 75% Train, 20% Test et 5% validation (par station), enregistre les données dans le dossier data/datasets
+---
 
-    . collect_inference.py : Réalise les 3 étapes précédentes mais uniquement pour 1 seule station choisi (flag --city obligatoire)
-    Enregistre les données dans le dossier data/inference.
-    A la fin, le process garde uniquement les données météo du jour pour les enregistrer dans un fichier .json
-    
-    . Pipeline : Process DVC pour automatiser tout ça, dans le dossier src/pipelines/dvc.yaml.
-    Pour le lancer faire : dvc repro src/pipeline/dvc.yaml
+## Ce que fait le projet
 
-- Entrainement (training.py) :
-    Récupération des fichiers dans data/datasets, puis extraction des données X et y (via le nom de la colonne target "RainTomorrow")
-    Entrainement du modèle, suivi avec MLFlow, sauvegarde des métriques et comparison entre challenger et best_model (selon la métrique PR_AUC)
-    Le modèle est enregstré sur MLFlow server hébergé sur la plateforme Dagshub du projet.
-    Registered_name: 'XGBoost_WeatherAUS'
-    Run_name: <today_date>_<version>
+| | |
+|---|---|
+| **Question posée** | Pleuvra-t-il demain ? (classification binaire `RainTomorrow`) |
+| **Données** | [Bureau of Meteorology](http://www.bom.gov.au/climate/dwo/) — 49 stations australiennes (46 exploitables) |
+| **Historique** | ~120 000 observations quotidiennes, de 2007 à aujourd'hui |
+| **Modèle** | XGBoost — PR-AUC ≈ 0.80 sur ~6 000 lignes de validation |
+| **Cycle** | Collecte + réentraînement mensuels, entièrement automatisés |
 
-- Prédiction (predict.py):
-    Flag --city pour récupérer le fichier JSON de la station correspondante. On prend le dernier fichier JSON de la station qui a été créé.
-    Téléchargement du meilleur modèle (alias best_model)
-    Prédiction du modèle
+---
 
-- Interface :
-    Interface utilisateur pour sélectionner la ville et lancer la prédiction météo.
-    Techno utilisée : Streamlit. Non terminé.
+## Architecture
 
-- Exemples :
-    -> collecte de données training : dvc repro && dvc push
-    -> collecte des données inférence : python collect_inference.py --city Canberra
-    -> entrainement : python training.py
-    -> prediction : python predict.py --city Canberra
-    -> visualisation interface : streamlit run app.py
+```mermaid
+flowchart LR
+    BOM[("Bureau of<br/>Meteorology")]
+    AIRFLOW["Airflow :8080<br/>2 DAGs mensuels"]
 
+    subgraph DATA["Donnees &amp; ML"]
+        COLLECT["collect_raw"] --> FEAT["create_features"]
+        FEAT --> DS["create_datasets"]
+        DS --> TRAIN["training<br/>XGBoost"]
+        DS --> DRIFT["drift_report"]
+    end
 
-# Docker Compose Usage
+    subgraph DAGSHUB["DagsHub"]
+        DVCREMOTE[("Remote DVC<br/>S3")]
+        MLFLOW[("MLflow<br/>Tracking + Registry")]
+    end
 
-## Build all images
+    subgraph SERVING["Serving"]
+        NGINX["nginx :8000"] --> API["FastAPI"]
+        UI["Streamlit :8501"] --> API
+    end
+
+    subgraph MONITOR["Monitoring"]
+        PROM["Prometheus :9090"] --> GRAF["Grafana :3000"]
+        GRAF --> SLACK["Slack"]
+        EVID["Evidently UI :8888"]
+    end
+
+    BOM --> COLLECT
+    DS -.-> DVCREMOTE
+    TRAIN -->|best_model| MLFLOW
+    MLFLOW --> API
+    API --> PROM
+    DRIFT --> EVID
+    AIRFLOW -.-> DATA
+```
+
+Chaque bloc est un **conteneur Docker** orchestré par un unique `docker-compose.yml`.
+
+---
+
+## Fonctionnalités
+
+### 📊 Pipeline de données versionné (DVC)
+
+Trois étapes reproductibles déclarées dans [`src/pipelines/dvc.yaml`](src/pipelines/dvc.yaml) :
+
+```
+raw_processed  →  features  →  datasets
+(collecte BOM)    (.parquet)   (train/test/valid)
+```
+
+`dvc repro` ne rejoue que ce qui a changé. Les données lourdes vivent sur le remote
+DagsHub ; Git ne stocke que des pointeurs (`dvc.lock`).
+
+**Features calculées** : saisonnalité (`dayofyear`), position (`latitude`/`longitude`),
+direction du vent en encodage cyclique (`sin`/`cos`, pour éviter la rupture 360° ≈ 0°)
+et surtout des **décalages temporels J-1 et J-3** sur 8 variables, qui capturent la
+dynamique récente.
+
+**Découpage chronologique par station** : 75 % train (le plus ancien), 20 % test,
+5 % validation (le plus récent) — on entraîne sur le passé, on valide sur le récent.
+
+### 🤖 Entraînement & registre de modèles
+
+XGBoost avec `scale_pos_weight` (les jours de pluie sont minoritaires : ~22 %) et
+early stopping. Chaque run logue paramètres, métriques et modèle dans **MLflow**.
+Le challenger est comparé au champion sur la **PR-AUC** — bien plus fiable que
+l'accuracy sur des classes déséquilibrées — et prend l'alias `best_model` s'il gagne.
+
+### 🚀 API de prédiction
+
+**FastAPI** derrière un reverse proxy **nginx** qui impose une clé API sur toutes les
+routes sauf `/health`. L'API charge `best_model` depuis MLflow au démarrage.
+
+### 🖥️ Interface utilisateur
+
+**Streamlit** : carte interactive des 49 stations, sélection par clic ou liste,
+prédiction en un bouton. Page de connexion (mots de passe hachés bcrypt) avec
+**deux rôles** :
+
+- **`user`** → l'interface de prédiction
+- **`admin`** → en plus, les liens vers Grafana et l'UI Evidently, et la consultation
+  des rapports de drift
+
+### ⚙️ Orchestration (Airflow)
+
+Deux DAGs plutôt qu'un seul — pour pouvoir **rejouer l'un sans l'autre** (recollecter
+sans réentraîner, ou réentraîner après un ajustement du modèle) :
+
+| DAG | Déclenchement | Étapes |
+|---|---|---|
+| `data_pipeline` | `@monthly` | `dvc_pull` → collecte → features → datasets → **drift** → `dvc push` → commit Git → déclenche ↓ |
+| `model_training` | par le précédent | entraînement → mise à jour conditionnelle de la référence de drift · redémarrage de l'API |
+
+Le pipeline **commit et pousse automatiquement** les pointeurs DVC sur Git.
+
+### 📈 Monitoring
+
+**Temps réel** — l'API expose `/metrics`, Prometheus collecte, Grafana affiche :
+statut UP/DOWN, volume de prédictions, taux d'échec, confidence (moyenne et p95),
+latence p95, répartition pluie / pas pluie. Deux alertes partent sur **Slack** :
+API injoignable, et taux d'échec > 20 %.
+
+Source de données, contact point et règles sont **provisionnés en fichiers**
+([`monitoring/grafana/provisioning/`](monitoring/grafana/provisioning/)) : tout se
+recrée automatiquement au démarrage.
+
+**Dérive des données** — [Evidently](https://www.evidentlyai.com/) compare à chaque
+collecte le nouveau jeu de données à une **référence** (le dataset ayant servi à
+entraîner le modèle déployé). Il mesure le *data drift* par colonne, le *target drift*,
+produit un rapport HTML et logue les métriques dans MLflow. Une UI dédiée permet de
+suivre l'évolution dans le temps.
+
+---
+
+## Démarrage rapide
+
+### Prérequis
+
+Docker + Docker Compose, un compte [DagsHub](https://dagshub.com/), et un token GitHub
+si vous voulez le versionnement automatique.
+
+### 1. Configuration
+
+```bash
+cp .env.example .env
+```
+
+Variables à renseigner :
+
+| Variable | Rôle |
+|---|---|
+| `DAGSHUB_USER_TOKEN` | accès MLflow + remote DVC |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | le **même token** DagsHub (stockage S3) |
+| `GITHUB_TOKEN` | PAT *classic* (scope `repo`) pour le commit automatique |
+| `HOST_PROJECT_PATH` | chemin **absolu** du dépôt sur votre machine (bind-mount Airflow) |
+| `API_KEY` | clé exigée par nginx sur l'API |
+| `AIRFLOW__WEBSERVER__SECRET_KEY` | identique entre webserver et scheduler |
+| `GF_SECURITY_ADMIN_USER` / `_PASSWORD` | identifiants Grafana |
+| `WEBHOOK_SLACK_URL` | webhook d'alerting (optionnel) |
+| `DOCKER_GID` | GID du groupe `docker` — `stat -c '%g' /var/run/docker.sock` (défaut : 999) |
+
+### 2. Construction
 
 ```bash
 docker compose build
 ```
 
----
+> Les services `drift` et `evidently-ui` réutilisent l'image du service `training` :
+> lancez au moins `docker compose build training` avant de les démarrer.
 
-## 1. Prepare training data
-
-Run the DVC pipeline to collect raw data, create features and generate training datasets.
+### 3. Démarrage
 
 ```bash
-docker compose run --rm collect-training
+docker compose up -d api nginx interface prometheus grafana evidently-ui
+docker compose up airflow-init                                    # une seule fois
+docker compose up -d postgres airflow-webserver airflow-scheduler
 ```
 
-Equivalent to:
+### 4. Récupérer les données et entraîner
 
 ```bash
-dvc repro src/pipelines/dvc.yaml
-```
-
----
-
-## 2. Train the model
-
-Train the XGBoost model and register it in MLflow / Dagshub.
-
-```bash
-docker compose run --rm training
-```
-
-Equivalent to:
-
-```bash
-python src/models/training.py
+docker compose run --rm drift bash -c 'cd src/pipelines && dvc pull'   # données existantes
+docker compose run --rm training python -m src.training.training
 ```
 
 ---
 
-## 3. Prepare inference data
+## Les services
 
-Generate the latest weather features for a specific city and save them in `data/inference`.
-
-Default city:
-
-```bash
-docker compose run --rm collect-inference
-```
-
-Specify a city:
-
-```bash
-CITY=Canberra docker compose run --rm collect-inference
-```
-
-Equivalent to:
-
-```bash
-python src/data/collect_inference.py --city Canberra
-```
+| Service | URL | Identifiants |
+|---|---|---|
+| 🖥️ Interface Streamlit | http://localhost:8501 | selon `src/interface/config.yaml` |
+| 🚀 API (via nginx) | http://localhost:8000 | en-tête `x-api-key` |
+| ⚙️ Airflow | http://localhost:8080 | `admin` / `admin` |
+| 📊 Grafana | http://localhost:3000 | cf. `.env` |
+| 🔥 Prometheus | http://localhost:9090 | — |
+| 📈 Evidently UI | http://localhost:8888 | — |
 
 ---
 
-## 4. Run prediction from CLI
+## Utilisation
 
-Use the latest inference JSON file for a city and predict tomorrow's weather.
-
-Default city:
+### Prédiction via l'API
 
 ```bash
-docker compose run --rm predict
-```
-
-Specify a city:
-
-```bash
-CITY=Canberra docker compose run --rm collect-inference
-CITY=Canberra docker compose run --rm predict
-```
-
-Equivalent to:
-
-```bash
-python src/models/predict.py --city Canberra
-```
-
----
-
-## 5. Run API service
-
-The FastAPI app (`api`) is not exposed directly — an `nginx` reverse proxy in front of it (`src/api/nginx.conf.template`) publishes port 8000 and enforces an API key on every route except `/health`. Requests must carry a matching `X-Api-Key` header or nginx returns `403` before the request ever reaches `api`.
-
-### Setup
-
-Set `API_KEY` in `.env` (any non-empty string for local testing):
-
-```bash
-echo "API_KEY=local-test-key-123" >> .env
-```
-
-`api` also needs the rest of `.env` (`env_file: .env`) for `DAGSHUB_USER_TOKEN` — without it, model loading fails at startup with a DagsHub OAuth error.
-
-### Start API + proxy
-
-Both containers are required — starting `api` alone leaves nothing listening on port 8000:
-
-```bash
-docker compose up -d api nginx
-```
-
-Check logs:
-
-```bash
-docker compose logs -f api nginx
-```
-
-### Test the API key behavior
-
-`/health` is intentionally unauthenticated (used for container healthchecks):
-
-```bash
-curl http://127.0.0.1:8000/health
-# {"status":"ok"}
-```
-
-Every other route requires the key — no key or a wrong key returns `403`:
-
-```bash
-curl -o /dev/null -w "%{http_code}\n" -X POST http://127.0.0.1:8000/predict \
-  -H "Content-Type: application/json" -d '{"city":"Sydney"}'
-# 403
-
-curl -o /dev/null -w "%{http_code}\n" -X POST http://127.0.0.1:8000/predict \
-  -H "Content-Type: application/json" -H "x-api-key: wrong-key" -d '{"city":"Sydney"}'
-# 403
-```
-
-With the correct key it reaches `api` normally:
-
-```bash
-curl -X POST http://127.0.0.1:8000/predict \
+curl -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
-  -H "x-api-key: local-test-key-123" \
+  -H "x-api-key: VOTRE_CLE" \
   -d '{"city":"Sydney"}'
 ```
 
-**Known gap:** if `API_KEY` is unset or empty when `nginx` starts, the generated check becomes `if ($http_x_api_key != "") return 403;` — which lets *unauthenticated* requests through instead of blocking everything. Always confirm `API_KEY` is set in `.env` before relying on this in any shared environment; don't assume a missing key fails closed.
+```json
+{"status":"success","city":"Sydney",
+ "result":{"prediction":"Pas de pluie demain",
+           "rain_probability":0.023,"confidence":0.953}}
+```
 
-Stop everything:
+`/health` reste accessible sans clé ; toute autre route sans clé valide renvoie `403`.
+
+### En ligne de commande
 
 ```bash
-docker compose stop api nginx
+docker compose run --rm predict                       # ville par défaut : Sydney
+CITY=Canberra docker compose run --rm predict
 ```
 
----
-
-## 6. Run Streamlit interface
-
-Start the Streamlit application.
-
-```bash
-docker compose up -d interface
-```
-
-Check logs:
-
-```bash
-docker compose logs -f interface
-```
-
-Open in browser:
-
-```text
-http://localhost:8501
-```
-
-Stop interface:
-
-```bash
-docker compose stop interface
-```
-
----
-
-## 7. Monitoring Promotheus / Grafana
-
-Start scan + create report
+### Rapport de drift à la demande
 
 ```bash
 docker compose run --rm drift
 ```
----
 
-## 8. Drift Monitoring Evidently
-
-Open in browser:
-
-```text
-http://localhost:3000
-```
-
-## Full workflow
-
-### Initial model training
+### Générer du trafic (pour alimenter les dashboards)
 
 ```bash
-docker compose run --rm collect-training
-docker compose run --rm training
-```
-
-### Generate inference data
-
-```bash
-CITY=Sydney docker compose run --rm collect-inference
-```
-
-### Start API
-
-```bash
-docker compose up -d api
-```
-
-### Predict
-
-```bash
-curl "http://localhost:8000/predict?city=Sydney"
+python3 src/monitoring/load_generator.py --interval 2 --duration 600
 ```
 
 ---
 
-## 7. Airflow orchestration
+## Structure du dépôt
 
-Runs the two DAGs in `dags/`: `data_pipeline` (dvc repro → dvc push → git commit/push → triggers training) and `model_training` (train → restart api). Both use `DockerOperator`, so tasks run in their own container rather than inside the Airflow containers.
-
-### Setup
-
-```bash
-cp .env.example .env
-# fill in DAGSHUB_USER_TOKEN, GITHUB_TOKEN, HOST_PROJECT_PATH (absolute path to this repo on YOUR machine)
 ```
-
-### Which image do the DAG tasks run?
-
-Both DAGs read `TRAINING_IMAGE` from `.env` and default to `ghcr.io/eveangelion/mlops-meteo-australie/training:latest` (built by [.github/workflows/build-push-images.yml](.github/workflows/build-push-images.yml) on push to `main`). **That GHCR package is private** — pulling it without `docker login ghcr.io` fails with `403 Forbidden`.
-
-For local testing, build the training image yourself first and point `TRAINING_IMAGE` at it in `.env`:
-
-```bash
-docker build -t mlops_meteo_australie-training:latest -f src/training/Dockerfile .
-# in .env:
-# TRAINING_IMAGE=mlops_meteo_australie-training:latest
+├── dags/                    # DAGs Airflow (data_pipeline, model_training)
+├── data/                    # Données versionnées par DVC (non committées)
+│   ├── processed/  features/  datasets/  reference/
+├── monitoring/
+│   ├── prometheus/          # Configuration de scrape
+│   └── grafana/             # Dashboard + provisioning (datasource, alertes)
+├── reports/drift/           # Rapports Evidently (générés, non versionnés)
+└── src/
+    ├── data/                # Collecte, features, datasets
+    ├── training/            # Entraînement XGBoost + comparaison de modèles
+    ├── prediction/          # Chargement du modèle et inférence
+    ├── api/                 # FastAPI + configuration nginx
+    ├── interface/           # Application Streamlit
+    ├── monitoring/          # Rapport de drift, générateur de charge
+    └── pipelines/           # dvc.yaml + scripts du pipeline
 ```
-
-Only switch to the registry image once you've verified the DAGs work locally (and either the package is made public or you've run `docker login ghcr.io`).
-
-### Start Airflow
-
-```bash
-docker compose up airflow-init                                      # one-off: db migrate + creates admin/admin
-docker compose up -d postgres airflow-webserver airflow-scheduler
-```
-
-Open [http://localhost:8080](http://localhost:8080) (`admin` / `admin`). Check both DAGs loaded cleanly:
-
-```bash
-docker compose exec airflow-scheduler airflow dags list-import-errors
-```
-
-### Test a single task without side effects
-
-```bash
-docker compose exec airflow-scheduler airflow tasks test data_pipeline raw_processed 2026-07-23
-```
-
-### Trigger a full run
-
-```bash
-docker compose exec airflow-scheduler airflow dags trigger data_pipeline
-```
-
-Note: a full `data_pipeline` run really pushes to DagsHub (`dvc_push`) and commits/pushes `dvc.lock` to GitHub (`git_commit_push`) using the credentials in `.env` — it is not a dry run.
-
-**Before triggering `model_training` (directly or via `data_pipeline`): make sure `api` is already running (`docker compose up -d api`).** Its last task, `restart_api`, runs `docker restart mlops_meteo_australie-api-1` — if that container doesn't exist yet, the task fails.
 
 ---
 
-## Stop all services
+## Garde-fous
 
-```bash
-docker compose down
-```
+Le pipeline embarque trois protections contre la **perte silencieuse de données
+d'entraînement** — un incident réel qui avait réduit la base de 120 000 à 2 000 lignes
+sans qu'aucune erreur ne soit levée :
+
+1. **`dvc pull` en tête de DAG** — le pipeline part toujours de l'état versionné, même
+   sur une machine où `data/` est vide.
+2. **Refus du repli silencieux** — si `data/features` est vide, `create_features.py`
+   s'arrête au lieu de reconstruire à partir des seuls mois fraîchement collectés
+   (`--bootstrap` pour forcer une vraie initialisation).
+3. **Canari sur la taille** — `create_datasets.py` refuse d'écraser les datasets si le
+   jeu d'entraînement perd plus de 20 % de ses lignes (`--allow_shrink` pour outrepasser).
+
+---
+
+## Dépannage
+
+<details>
+<summary><b>L'API renvoie 502 Bad Gateway</b></summary>
+
+nginx ne joint plus le conteneur `api`. La configuration utilise le resolver DNS de
+Docker pour re-résoudre l'adresse à chaque requête ; si le problème persiste :
+`docker compose restart nginx`.
+</details>
+
+<details>
+<summary><b>Les tâches Airflow échouent : « Permission denied » sur docker.sock</b></summary>
+
+Le scheduler doit appartenir au groupe propriétaire du socket Docker. Renseignez
+`DOCKER_GID` dans `.env` avec le résultat de `stat -c '%g' /var/run/docker.sock`.
+</details>
+
+<details>
+<summary><b>Les logs Airflow affichent « 403 Forbidden »</b></summary>
+
+Webserver et scheduler doivent partager la même `AIRFLOW__WEBSERVER__SECRET_KEY`.
+Elle est chargée depuis `.env` dans les deux services.
+</details>
+
+<details>
+<summary><b>Un lien (Grafana, Evidently) tourne dans le vide</b></summary>
+
+Les boutons pointent vers `localhost`. En accès distant (port forwarding VS Code),
+vérifiez que le port est bien transféré, ou surchargez `GRAFANA_URL` / `EVIDENTLY_URL`
+dans `.env`.
+</details>
+
+---
+
+## Stack technique
+
+`Docker Compose` · `DVC` · `DagsHub` · `MLflow` · `XGBoost` · `Apache Airflow` ·
+`PostgreSQL` · `FastAPI` · `nginx` · `Streamlit` · `Prometheus` · `Grafana` ·
+`Evidently` · `Slack`
