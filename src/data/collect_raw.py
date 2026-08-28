@@ -37,12 +37,20 @@ def collect_training_data():
     
     center_city_date = datetime.now(ZoneInfo(STATIONS_DATA['AliceSprings']['timezone']))
     center_city_date_1month_before = center_city_date - relativedelta(months=1)
-    # center_city_date_2month_before = center_city_date - relativedelta(months=2)
-    # center_city_date_3month_before = center_city_date - relativedelta(months=3)
-    # center_city_date_4month_before = center_city_date - relativedelta(months=4)
+    center_city_date_2month_before = center_city_date - relativedelta(months=2)
+    center_city_date_3month_before = center_city_date - relativedelta(months=3)
+    center_city_date_4month_before = center_city_date - relativedelta(months=4)
+    center_city_date_5month_before = center_city_date - relativedelta(months=5)
+    center_city_date_6month_before = center_city_date - relativedelta(months=6)
 
     month_list = [center_city_date.strftime("%Y%m"),
-                  center_city_date_1month_before.strftime("%Y%m")]
+                  center_city_date_1month_before.strftime("%Y%m"),
+                  center_city_date_2month_before.strftime("%Y%m"),
+                  center_city_date_3month_before.strftime("%Y%m"),
+                  center_city_date_4month_before.strftime("%Y%m"),
+                  center_city_date_5month_before.strftime("%Y%m"),
+                  center_city_date_6month_before.strftime("%Y%m")
+                  ]
     
     dict_clean_reports = {}
     processed_subfolder_notcompleted = osp.join(processed_folder, 'not_completed')

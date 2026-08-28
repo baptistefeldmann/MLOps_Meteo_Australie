@@ -1,8 +1,16 @@
 server {
     listen 80;
 
+    # DNS embarque de Docker (127.0.0.11) + hostname passe par une variable :
+    # force nginx a re-resoudre `api` a chaque requete.
+    # Sans ca, `proxy_pass http://api:8000` est resolu UNE SEULE FOIS au
+    # demarrage et l'IP reste en cache -> 502 "Host is unreachable" des que le
+    # conteneur api est recree avec une nouvelle IP.
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $upstream_api api;
+
     location = /health {
-        proxy_pass http://api:8000;
+        proxy_pass http://$upstream_api:8000$request_uri;
         proxy_set_header Host $host;
     }
 
@@ -10,7 +18,7 @@ server {
         if ($http_x_api_key != "${API_KEY}") {
             return 403;
         }
-        proxy_pass http://api:8000;
+        proxy_pass http://$upstream_api:8000$request_uri;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

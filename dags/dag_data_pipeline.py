@@ -41,6 +41,15 @@ with DAG(
     tags=["data"],
 ) as dag:
 
+    # CORRECTIF STRUCTUREL : restaurer l'etat versionne AVANT toute chose.
+    # Sans ca, sur une machine ou data/ est vide, le pipeline reconstruit tout
+    # a partir des seuls mois collectes puis pousse cette perte (incident du
+    # 2026-06-03 : historique passe de 120 000 a 2 000 lignes).
+    dvc_pull = docker_op(
+        task_id="dvc_pull",
+        command='bash -c "git config --global --add safe.directory /app && dvc pull"',
+    )
+
     raw_processed = docker_op(
         task_id="raw_processed",
         command='bash -c "cd src/pipelines && dvc repro raw_processed"',
@@ -87,4 +96,4 @@ with DAG(
         trigger_dag_id="model_training",
     )
 
-    raw_processed >> features >> datasets >> drift_report >> dvc_push >> git_commit_push >> trigger_training
+    dvc_pull >> raw_processed >> features >> datasets >> drift_report >> dvc_push >> git_commit_push >> trigger_training

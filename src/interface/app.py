@@ -98,10 +98,17 @@ if role == "admin":
             if _drift_reports:
                 _choix = st.selectbox("Choisir un rapport", [osp.basename(r) for r in _drift_reports])
                 _chemin = osp.join(DRIFT_DIR, _choix)
-                with open(_chemin, "r", encoding="utf-8") as _rf:
-                    _rapport_html = _rf.read()
-                st.download_button("⬇️ Télécharger", _rapport_html, file_name=_choix, mime="text/html")
-                components.html(_rapport_html, height=600, scrolling=True)
+                _poids = osp.getsize(_chemin) / 1e6
+                st.caption(f"{_poids:.1f} Mo — préférer l'UI Evidently pour la consultation courante.")
+                # ATTENTION : le contenu d'un expander est execute meme replie.
+                # Un rapport Evidently pese plusieurs Mo : on ne le charge donc
+                # QUE sur demande explicite, sinon chaque rerun transfere des Mo
+                # inutiles vers le navigateur (page qui semble figee).
+                if st.checkbox("Charger ce rapport", key="load_drift_report"):
+                    with open(_chemin, "r", encoding="utf-8") as _rf:
+                        _rapport_html = _rf.read()
+                    st.download_button("⬇️ Télécharger", _rapport_html, file_name=_choix, mime="text/html")
+                    components.html(_rapport_html, height=600, scrolling=True)
             else:
                 st.info("Aucun rapport de drift pour l'instant (lance `docker compose run --rm drift`).")
 
