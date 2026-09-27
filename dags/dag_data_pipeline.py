@@ -11,8 +11,16 @@ TRAINING_IMAGE = "mlops_meteo_australie-training"
 
 BASE_ENV = {
     "DAGSHUB_USER_TOKEN": os.environ.get("DAGSHUB_USER_TOKEN"),
+    "DAGSHUB_USERNAME": os.environ.get("DAGSHUB_USERNAME"),
     "AWS_ACCESS_KEY_ID": os.environ.get("AWS_ACCESS_KEY_ID"),
     "AWS_SECRET_ACCESS_KEY": os.environ.get("AWS_SECRET_ACCESS_KEY"),
+}
+
+# Identifiants du depot GitHub cible par les taches qui committent/poussent.
+GIT_ENV = {
+    "GITHUB_TOKEN": os.environ.get("GITHUB_TOKEN"),
+    "GITHUB_USER": os.environ.get("GITHUB_USER"),
+    "GITHUB_REPO": os.environ.get("GITHUB_REPO"),
 }
 
 PROJECT_MOUNT = Mount(source=HOST_PROJECT_PATH, target="/app", type="bind")
@@ -84,11 +92,11 @@ with DAG(
             git config --global --add safe.directory /app &&
             git config user.email airflow@mlops.com &&
             git config user.name Airflow &&
-            git remote set-url origin https://EveAngelion:${GITHUB_TOKEN}@github.com/EveAngelion/MLOps_Meteo_Australie.git &&
+            git remote set-url origin https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_USER}/${GITHUB_REPO}.git &&
             git add src/pipelines/dvc.lock &&
             git diff --staged --quiet && echo 'Nothing to commit' || (git commit -m 'Auto: data update $(date +%F)' && git push)
         " """,
-        extra_env={"GITHUB_TOKEN": os.environ.get("GITHUB_TOKEN")},
+        extra_env=GIT_ENV,
     )
 
     trigger_training = TriggerDagRunOperator(

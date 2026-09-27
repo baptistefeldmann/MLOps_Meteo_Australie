@@ -30,7 +30,7 @@ def get_model():
     logger.info("Load model")
 
     dagshub.init(
-        repo_owner="EveAngelion",
+        repo_owner=os.environ.get("DAGSHUB_USERNAME"),
         repo_name="MLOps_Meteo_Australie",
         mlflow=True
     )

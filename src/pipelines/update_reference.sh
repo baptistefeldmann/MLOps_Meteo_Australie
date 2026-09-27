@@ -51,7 +51,7 @@ dvc push
 git config --global --add safe.directory /app
 git config user.email airflow@mlops.com
 git config user.name Airflow
-git remote set-url origin "https://EveAngelion:${GITHUB_TOKEN}@github.com/EveAngelion/MLOps_Meteo_Australie.git"
+git remote set-url origin "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_USER}/${GITHUB_REPO}.git"
 git add data/reference.dvc data/.gitignore
 if git diff --staged --quiet; then
     echo "Pointeur DVC inchange -> rien a committer."

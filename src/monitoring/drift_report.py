@@ -63,7 +63,7 @@ TARGET = "RainTomorrow"
 
 # MLflow / DagsHub (memes coordonnees que training.py)
 MLFLOW_PARAMS = {
-    "repo_owner": "EveAngelion",
+    "repo_owner": os.environ["DAGSHUB_USERNAME"],
     "repo_name": "MLOps_Meteo_Australie",
     "experiment_name": "Weather_AUS_Drift",
 }
