@@ -67,7 +67,9 @@ def train_xgboost_pipeline(train_path:str, test_path:str, valid_path:str, target
         'min_child_weight': 15,
         'reg_alpha': 0.3,
         'reg_lambda': 1.0,
-        'eval_metric': "logloss",
+        # aucpr : aligne le critere d'arret sur celui qui decide de la promotion
+        # (PR-AUC). Mesure du 2026-08-28 : arret ~3x plus tot, qualite identique.
+        'eval_metric': "aucpr",
         'scale_pos_weight': (y_train == 0).sum() / (y_train == 1).sum(),
         'early_stopping_rounds': 50,
         'random_state': RANDOM_SEED
