@@ -92,9 +92,8 @@ with DAG(
             git config --global --add safe.directory /app &&
             git config user.email airflow@mlops.com &&
             git config user.name Airflow &&
-            git remote set-url origin https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_USER}/${GITHUB_REPO}.git &&
             git add src/pipelines/dvc.lock &&
-            git diff --staged --quiet && echo 'Nothing to commit' || (git commit -m 'Auto: data update $(date +%F)' && git push)
+            git diff --staged --quiet && echo 'Nothing to commit' || (git commit -m 'Auto: data update $(date +%F)' && git push https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_USER}/${GITHUB_REPO}.git HEAD)
         " """,
         extra_env=GIT_ENV,
     )

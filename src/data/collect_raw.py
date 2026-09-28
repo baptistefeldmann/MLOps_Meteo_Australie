@@ -24,6 +24,13 @@ REPORTS_FILE = osp.abspath(osp.join(PROJECT_ROOT,'..','utils','processed_reports
 with open(JSON_FILE) as src:
     STATIONS_DATA = json.load(src)
 
+# Fenetre de collecte : mois courant + MONTHS_BACK precedents.
+# Un recouvrement de 2 mois suffit a rattraper une execution manquee ou une
+# publication tardive du BOM. Au-dela, chaque run re-telecharge des centaines
+# de fichiers deja connus (elargi a 6 en 2026 pour un rattrapage ponctuel,
+# ramene a 2 le 2026-09-28 une fois celui-ci termine).
+MONTHS_BACK = 2
+
 logger = utils.get_logger()
 logger.debug(PROJECT_ROOT)
 
@@ -36,21 +43,11 @@ def collect_training_data():
     [os.remove(i) for i in glob.glob(osp.join(processed_folder,'not_completed','*.csv'))]
     
     center_city_date = datetime.now(ZoneInfo(STATIONS_DATA['AliceSprings']['timezone']))
-    center_city_date_1month_before = center_city_date - relativedelta(months=1)
-    center_city_date_2month_before = center_city_date - relativedelta(months=2)
-    center_city_date_3month_before = center_city_date - relativedelta(months=3)
-    center_city_date_4month_before = center_city_date - relativedelta(months=4)
-    center_city_date_5month_before = center_city_date - relativedelta(months=5)
-    center_city_date_6month_before = center_city_date - relativedelta(months=6)
 
-    month_list = [center_city_date.strftime("%Y%m"),
-                  center_city_date_1month_before.strftime("%Y%m"),
-                  center_city_date_2month_before.strftime("%Y%m"),
-                  center_city_date_3month_before.strftime("%Y%m"),
-                  center_city_date_4month_before.strftime("%Y%m"),
-                  center_city_date_5month_before.strftime("%Y%m"),
-                  center_city_date_6month_before.strftime("%Y%m")
-                  ]
+    # Du plus recent au plus ancien : month_list[0] est le mois courant, le
+    # reste sert au rattrapage (cf. usages plus bas).
+    month_list = [(center_city_date - relativedelta(months=i)).strftime("%Y%m")
+                  for i in range(MONTHS_BACK + 1)]
     
     dict_clean_reports = {}
     processed_subfolder_notcompleted = osp.join(processed_folder, 'not_completed')
